@@ -1,0 +1,20 @@
+@font-face {
+	font-family: 'MyanmarPaOh';
+	src: url('MyanmarPaOh.ttf');
+}
+
+body { font-family: 'MyanmarPaOh' !important; line-height: 2em; color: #cccccc; background: black;}
+
+p { text-align:left;  text-indent: 25px;  font-size: 17px;}
+h1 { color:darkorange; text-align:center; font-size:  20px; font-weight: bold;}
+h2 { color:darkorange; text-align:center; font-size:  19px; font-weight: bold;}
+h3 { color:darkorange; text-align:center;  font-size:  18px; font-weight: bold;}
+h4 { color:darkorange; text-align:center; font-size:  17px; font-weight: bold;}
+h5 { color:darkorange; text-align:center;  font-size:  17px; font-weight: bold;}
+h6 { color:darkorange; text-align:center; font-size:  17px; font-weight: bold;}
+
+.title { color:darkorange; text-align:center; font-weight: bold;}
+.center {	text-align:center; font-weight: bold;}
+.ending {	text-align:center; font-weight: bold; font-size: 15px; }
+.unindent { text-indent: 0px; }
+.footnote { color: gray; font-size: 15px; }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_addBookmark"
+        android:icon="@drawable/ic_addbookmark"
+        android:orderInCategory="100"
+        android:title="setting"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_copy"
+        android:icon="@drawable/ic_copy"
+        android:orderInCategory="100"
+        android:title="setting"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_setting"
+        android:icon="@drawable/ic_setting"
+        android:orderInCategory="100"
+        android:title="setting"
+        app:showAsAction="ifRoom" />
+</menu>
