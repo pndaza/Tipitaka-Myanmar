@@ -12,20 +12,19 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import mm.pndaza.tipitakamyanmar.R;
-import mm.pndaza.tipitakamyanmar.db.DBOpenHelper;
+import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
 import mm.pndaza.tipitakamyanmar.fragment.BookmarkFragment;
 import mm.pndaza.tipitakamyanmar.fragment.HomeFragment;
 import mm.pndaza.tipitakamyanmar.fragment.InfoFragment;
 import mm.pndaza.tipitakamyanmar.fragment.RecentFragment;
+import mm.pndaza.tipitakamyanmar.fragment.SearchFragment;
 import mm.pndaza.tipitakamyanmar.fragment.SettingDialogFragment;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 
 public class MainActivity extends AppCompatActivity implements
         RecentFragment.OnRecentItemClickListener,
-BookmarkFragment.OnBookmarkItemClickListener{
+BookmarkFragment.OnBookmarkItemClickListener, SearchFragment.OnSearchItemClickListener{
 
-    private DBOpenHelper db = null;
-    private SQLiteDatabase sqLiteDatabase = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +53,9 @@ BookmarkFragment.OnBookmarkItemClickListener{
                 case R.id.navigation_recent:
                     selectedFragment = new RecentFragment();
                     break;
-                case R.id.navigation_setting:
-                    showSettingDialog();
-                    return true;
+                case R.id.navigation_search:
+                    selectedFragment = new SearchFragment();
+                    break;
                 case R.id.navigation_info:
                     selectedFragment = new InfoFragment();
                     break;
@@ -76,23 +75,30 @@ BookmarkFragment.OnBookmarkItemClickListener{
 
     @Override
     public void onBookmarkItemClick(String bookid, int pageNumber) {
-        startReadBookActivity(bookid, pageNumber);
+        startReadBookActivity(bookid, pageNumber, "");
 
     }
 
     @Override
     public void onRecentItemClick(String bookid, int pageNumber) {
-        startReadBookActivity(bookid, pageNumber);
+        startReadBookActivity(bookid, pageNumber, "");
 
     }
 
-    private void startReadBookActivity(String bookid, int pageNumber){
+    @Override
+    public void onSearchItemClick(String bookid, int pageNumber, String queryWord) {
+        startReadBookActivity(bookid, pageNumber, queryWord);
+    }
+
+    private void startReadBookActivity(String bookid, int pageNumber, String queryWord){
 
         Intent intent = new Intent(this, ReadBookActivity.class);
         intent.putExtra("bookID", bookid);
         intent.putExtra("currentPage", pageNumber);
+        intent.putExtra("queryWord", queryWord);
         startActivity(intent);
     }
+
 
 
 /*    @Override
@@ -119,11 +125,11 @@ BookmarkFragment.OnBookmarkItemClickListener{
         return super.onOptionsItemSelected(item);
     }*/
 
-    private void showSettingDialog(){
+/*    private void showSettingDialog(){
         FragmentManager fm = getSupportFragmentManager();
         SettingDialogFragment settingDialog = new SettingDialogFragment();
         settingDialog.show(fm, "Setting");
-    }
+    }*/
 
 
 }

@@ -1,8 +1,8 @@
 package mm.pndaza.tipitakamyanmar.model;
 
 public class Page {
-    int pageNumber;
-    String pageContent;
+    private int pageNumber;
+    private String pageContent;
 
     public Page(int pageNumber,String pageContent ) {
         this.pageNumber = pageNumber;
@@ -16,4 +16,5 @@ public class Page {
     public String getPageContent() {
         return pageContent;
     }
+
 }

@@ -6,8 +6,8 @@ android {
         applicationId "mm.pndaza.tipitakamyanmar"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 3
-        versionName "20190921"
+        versionCode 4
+        versionName "20190927"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -32,7 +32,9 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
 
     implementation 'org.adw.library:discrete-seekbar:1.0.1'
-    implementation 'com.sdsmdg.tastytoast:tastytoast:0.1.1'
+    implementation 'com.fxn769:cue:1.1'
+    implementation 'com.kaopiz:kprogresshud:1.2.0'
+    implementation 'com.simplecityapps:recyclerview-fastscroll:2.0.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.model.Recent;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
-import mm.pndaza.tipitakamyanmar.utils.MyanNumber;
+import mm.pndaza.tipitakamyanmar.utils.NumberUtil;
 
 
 public class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
@@ -38,7 +38,7 @@ public class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder
         final Recent recent = recentList.get(position);
         String bookName = MDetect.getDeviceEncodedText(recent.getBookName());
         String pageNumber = MDetect.getDeviceEncodedText("နှာ - ")
-                + MyanNumber.toMyanmar(recent.getPageNumber());
+                + NumberUtil.toMyanmar(recent.getPageNumber());
         holder.tvBookName.setText(bookName);
         holder.tvPageNumber.setText(pageNumber);
     }

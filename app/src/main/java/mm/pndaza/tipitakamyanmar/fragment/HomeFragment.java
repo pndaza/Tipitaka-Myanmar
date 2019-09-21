@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.activity.ReadBookActivity;
 import mm.pndaza.tipitakamyanmar.adapter.BookListAdapter;
-import mm.pndaza.tipitakamyanmar.db.DBOpenHelper;
+import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
 import mm.pndaza.tipitakamyanmar.model.Book;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;

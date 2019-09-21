@@ -17,7 +17,7 @@
         android:layout_gravity="center_vertical"
         android:gravity="center"
         android:textSize="22sp"
-        android:text="@string/recent_empty"/>
+        android:text="@string/search_empty"/>
 
 </FrameLayout>
 

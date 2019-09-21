@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.activity.ReadBookActivity;
 import mm.pndaza.tipitakamyanmar.model.Page;
-import mm.pndaza.tipitakamyanmar.utils.MyanNumber;
+import mm.pndaza.tipitakamyanmar.utils.NumberUtil;
 import mm.pndaza.tipitakamyanmar.utils.SharePref;
 
 public class PageAdapter extends PagerAdapter {
@@ -98,7 +98,7 @@ public class PageAdapter extends PagerAdapter {
                 .append("\"s>")
                 .append("<body>\n")
                 .append("<p class=\"pageheader\">")
-                .append(MyanNumber.toMyanmar(pageNumber))
+                .append(NumberUtil.toMyanmar(pageNumber))
                 .append("</p>")
                 .append(content)
                 .append("\n<p>&nbsp;</p>")

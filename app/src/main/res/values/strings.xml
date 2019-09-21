@@ -4,7 +4,7 @@
     <string name="title_home">Home</string>
     <string name="title_bookmark">Bookmark</string>
     <string name="title_recent">Recent</string>
-    <string name="title_setting">Setting</string>
+    <string name="title_search">Search</string>
     <string name="title_info">Info</string>
     <string name="goto_page">စာမျက်နှာသို့</string>
     <string name="goto_cancel">မလုပ်တော့ဘူး</string>
@@ -22,6 +22,7 @@
     <string name="theme">အရောင်အသွင်အပြင်</string>
     <string name="themeDay">နေ့ (နောက်ခံအဖြူ စာလုံးမဲ)</string>
     <string name="themeNight">ည (နောက်ခံအမဲ စာလုံးဖြူ)</string>
+    <string name="search_empty">ဟူသော စာသားကို ရှာမတွေ့ပါ။</string>
     <string name="info_mm">About app</string>
 
 

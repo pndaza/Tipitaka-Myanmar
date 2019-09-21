@@ -1,7 +1,6 @@
 package mm.pndaza.tipitakamyanmar.fragment;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,7 +23,7 @@ import java.util.ArrayList;
 
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.adapter.RecentAdapter;
-import mm.pndaza.tipitakamyanmar.db.DBOpenHelper;
+import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
 import mm.pndaza.tipitakamyanmar.model.Recent;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;
@@ -86,7 +85,7 @@ public class RecentFragment extends Fragment {
         try{
             callbackListener = (OnRecentItemClickListener) context;
         } catch (ClassCastException e){
-            throw new ClassCastException(context.toString() + " must implemented OnWordlistSelectedListener");
+            throw new ClassCastException(context.toString() + " must implemented OnRecentItemCliclListener");
 
         }
     }

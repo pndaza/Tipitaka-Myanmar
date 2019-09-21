@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.adapter.BookmarkAdapter;
 import mm.pndaza.tipitakamyanmar.callback.SwipeToDeleteCallback;
-import mm.pndaza.tipitakamyanmar.db.DBOpenHelper;
+import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
 import mm.pndaza.tipitakamyanmar.model.Bookmark;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;

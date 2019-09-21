@@ -18,3 +18,4 @@ h6 { color:dodgerblue; text-align:center; font-size:  19px; font-weight: bold;}
 .ending {	text-align:center; font-weight: bold; font-size: 17px; }
 .unindent { text-indent: 0px; }
 .footnote { color: gray; font-size: 17px; }
+.highlight { color:white; background-color: magenta;}

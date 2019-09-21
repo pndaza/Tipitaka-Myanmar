@@ -10,15 +10,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.sdsmdg.tastytoast.TastyToast;
-
 import java.util.ArrayList;
 
 import mm.pndaza.tipitakamyanmar.R;
-import mm.pndaza.tipitakamyanmar.db.DBOpenHelper;
+import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
 import mm.pndaza.tipitakamyanmar.model.Bookmark;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
-import mm.pndaza.tipitakamyanmar.utils.MyanNumber;
+import mm.pndaza.tipitakamyanmar.utils.NumberUtil;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;
 
 
@@ -48,7 +46,7 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
         final Bookmark bookmark = bookmarkList.get(position);
         holder.tvNote.setText(bookmark.getNote()); // note are saved as device encoding
         holder.tvBookName.setText(MDetect.getDeviceEncodedText(bookmark.getBookName()));
-        String pageNumber = MDetect.getDeviceEncodedText("နှာ - ") + MyanNumber.toMyanmar(bookmark.getPageNumber());
+        String pageNumber = MDetect.getDeviceEncodedText("နှာ - ") + NumberUtil.toMyanmar(bookmark.getPageNumber());
         holder.tvPageNumber.setText(pageNumber);
     }
 
@@ -85,7 +83,7 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context,R.style.AlertDialogTheme);
         String message = "သိမ်းမှတ်ထားသည်ကို ဖျက်မှာလား";
         String comfirm = "ဖျက်မယ်";
-        String cancel = "မလုပ်တော့ဘူး";
+        String cancel = "မဖျက်တော့ဘူး";
         if (!MDetect.isUnicode()) {
             message = Rabbit.uni2zg(message);
             comfirm = Rabbit.uni2zg(comfirm);
@@ -99,9 +97,6 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
                             DBOpenHelper.getInstance(context).removeFromBookmark(position);
                             bookmarkList.remove(position);
                             notifyDataSetChanged();
-                            TastyToast.makeText(context,
-                                    MDetect.getDeviceEncodedText("သိမ်းထားသည်ကို ဖျက်လိုက်ပြီးပါပြီ"),
-                                    TastyToast.LENGTH_SHORT, TastyToast.INFO).show();
                         })
                 .setNegativeButton(cancel, (dialog, id) -> {
                     notifyDataSetChanged();
