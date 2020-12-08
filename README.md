@@ -1,1 +1,1 @@
-# Tipitaka-Myanmar
+# Tipitaka-Myanmar (deprecated)
