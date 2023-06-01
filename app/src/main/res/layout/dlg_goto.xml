@@ -3,21 +3,31 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    style="@style/AppTheme">
 
     <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="@string/goto_page"
+        android:id="@+id/tv_dlg_title"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"
+        android:text="@string/goto_title"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/line"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#a0a0a0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_dlg_title" />
 
     <EditText
         android:id="@+id/goto_num"
@@ -27,12 +37,39 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:focusable="true"
+        android:hint="@string/search_tip"
         android:inputType="number"
         android:lines="1"
         android:maxLines="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title" />
+        app:layout_constraintTop_toBottomOf="@+id/line" />
+
+    <RadioGroup
+        android:id="@+id/radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/goto_num">
+
+        <RadioButton
+            android:id="@+id/radio_btn_page"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/goto_page" />
+
+        <RadioButton
+            android:id="@+id/radio_btn_para"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/goto_paragraph" />
+    </RadioGroup>
+
 
     <Button
         android:id="@+id/btn_cancel"
@@ -47,7 +84,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btn_go"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/goto_num" />
+        app:layout_constraintTop_toBottomOf="@+id/radio_group"/>
 
     <Button
         android:id="@+id/btn_go"
@@ -60,10 +97,10 @@
         android:enabled="false"
         android:text="@string/goto_go"
         style="@style/DisabledButtonStyle"
-        app:layout_constraintStart_toEndOf="@+id/btn_cancel"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/goto_num" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btn_cancel"
+        app:layout_constraintTop_toBottomOf="@+id/radio_group"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

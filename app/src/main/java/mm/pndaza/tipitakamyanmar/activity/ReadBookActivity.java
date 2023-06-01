@@ -1,5 +1,6 @@
 package mm.pndaza.tipitakamyanmar.activity;
 
+import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -7,7 +8,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,23 +30,30 @@ import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.adapter.PageAdapter;
 import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
+import mm.pndaza.tipitakamyanmar.fragment.ChooseParagraphDialog;
 import mm.pndaza.tipitakamyanmar.fragment.GotoDialogFragment;
-import mm.pndaza.tipitakamyanmar.fragment.SettingDialogFragment;
-import mm.pndaza.tipitakamyanmar.fragment.TocDialogFragment;
+import mm.pndaza.tipitakamyanmar.fragment.TocBottomSheetDialogFragment;
 import mm.pndaza.tipitakamyanmar.model.Book;
 import mm.pndaza.tipitakamyanmar.model.Page;
+import mm.pndaza.tipitakamyanmar.model.Toc;
 import mm.pndaza.tipitakamyanmar.utils.BookUtil;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
+import mm.pndaza.tipitakamyanmar.utils.NumberUtil;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;
 
 
 public class ReadBookActivity extends AppCompatActivity
-        implements GotoDialogFragment.GotoDialogListener, TocDialogFragment.TocDialogListener {
+        implements GotoDialogFragment.GotoDialogListener,
+        TocBottomSheetDialogFragment.OnItemClickListener,
+        ChooseParagraphDialog.OnChooseParagraphListener {
 
     private Context context;
     private ArrayList<Page> listOfPage = new ArrayList<>();
@@ -58,15 +65,22 @@ public class ReadBookActivity extends AppCompatActivity
     private static ImageButton btn_toc;
     private static DiscreteSeekBar seekBar;
 
-    private static String bookid;
-    private static String bookname;
+    private static String bookID;
+    private static String bookName;
     private static int firstPage;
     private static int lastPage;
     private static int currentPage;
     private static String queryWord;
+    private static int firstParagraph;
+    private static int lastParagraph;
+    private Map<Integer, Integer> paragraph_map;
+    private static int paragraph;
+
+    private boolean isOpenedByDeeklink = false;
+    private static final int PARAGRAPH = 1;
+    private static final int LAUNCH_SETTING_ACTIVITY = 2;
 
     private static final String TAG = "ReadBook";
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,15 +90,26 @@ public class ReadBookActivity extends AppCompatActivity
 
         setSupportActionBar(findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        MDetect.init(this);
 
         Intent intent = getIntent();
-        bookid = intent.getStringExtra("bookID");
+        bookID = intent.getStringExtra("bookID");
         currentPage = intent.getIntExtra("currentPage", 0);
         queryWord = intent.getStringExtra("queryWord");
-        Book book = DBOpenHelper.getInstance(this).getBookInfo(bookid);
-        bookname = book.getName();
+        paragraph = intent.getIntExtra("paragraph", 0);
+        isOpenedByDeeklink = intent.getBooleanExtra("deeplink", false);
+        // load other book info from database
+        Book book = DBOpenHelper.getInstance(this).getBookInfo(bookID);
+        bookName = book.getName();
         firstPage = book.getFirstPage();
         lastPage = book.getLastPage();
+        loadParagraphs(bookID);
+
+        if (paragraph != 0) {
+            currentPage = (int) paragraph_map.get(paragraph);
+            // will be use to highlight paragraph
+            queryWord = NumberUtil.toMyanmar(paragraph);
+        }
 
         // restore page
         if (savedInstanceState != null) {
@@ -92,18 +117,13 @@ public class ReadBookActivity extends AppCompatActivity
         }
 
         //set title
-        setTitle(MDetect.getDeviceEncodedText(bookname));
-
+        setTitle(MDetect.getDeviceEncodedText(bookName));
         initView();
-
         new LoadBook().execute();
-
         setupGoto();
         setupSeek();
         setupSeekSync();
         setupToc();
-
-
     }
 
     @Override
@@ -112,46 +132,54 @@ public class ReadBookActivity extends AppCompatActivity
     }
 
     @Override
+    public void onBackPressed() {
+        if (isOpenedByDeeklink && isTaskRoot()) {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putInt("currentPage", viewPager.getCurrentItem() + 1);
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == LAUNCH_SETTING_ACTIVITY) {
+            recreate();
+        }
     }
 
     private void initView() {
-
         context = this;
-        MDetect.init(context);
-
         viewPager = findViewById(R.id.vpPager);
         control_bar = findViewById(R.id.control_bar);
         btn_goto = findViewById(R.id.btn_goto);
         seekBar = findViewById(R.id.seedbar);
         btn_toc = findViewById(R.id.btn_toc);
-
     }
 
     void setupGoto() {
 
         btn_goto.setOnClickListener(view -> {
-
             Bundle args = new Bundle();
             args.putInt("firstPage", firstPage);
             args.putInt("lastPage", lastPage);
-
-            Log.d("BookList", "first page is " + firstPage);
-            Log.d("BookList", "last page is " + lastPage);
+            args.putInt("firstParagraph", firstParagraph);
+            args.putInt("lastParagraph", lastParagraph);
 
             FragmentManager fm = getSupportFragmentManager();
             GotoDialogFragment gotoDialog = new GotoDialogFragment();
             gotoDialog.setArguments(args);
             gotoDialog.show(fm, "Goto");
-
-
         });
-
     }
-
 
     private void setupSeek() {
 
@@ -184,7 +212,6 @@ public class ReadBookActivity extends AppCompatActivity
         });
     }
 
-
     private void setupSeekSync() {
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -195,8 +222,7 @@ public class ReadBookActivity extends AppCompatActivity
             @Override
             public void onPageSelected(int i) {
                 seekBar.setProgress(firstPage + i);
-                DBOpenHelper.getInstance(context).addToRecent(bookid, i + 1);
-
+                DBOpenHelper.getInstance(context).addToRecent(bookID, i + 1);
             }
 
             @Override
@@ -206,19 +232,16 @@ public class ReadBookActivity extends AppCompatActivity
         });
     }
 
-
     private void setupToc() {
 
-        String tocText = DBOpenHelper.getInstance(this).getToc(bookid);
-        final ArrayList<String> tocList = new ArrayList<>(Arrays.asList(tocText.split("\n")));
-
+        final ArrayList<Toc> tocList = DBOpenHelper.getInstance(this).getToc(bookID);
         btn_toc.setOnClickListener(view -> {
 
             Bundle args = new Bundle();
-            args.putStringArrayList("icon_toc", tocList);
+            args.putParcelableArrayList("toc_list", tocList);
 
             FragmentManager fm = getSupportFragmentManager();
-            TocDialogFragment tocDialog = new TocDialogFragment();
+            TocBottomSheetDialogFragment tocDialog = new TocBottomSheetDialogFragment();
             tocDialog.setArguments(args);
             tocDialog.show(fm, "TOC");
 
@@ -229,9 +252,7 @@ public class ReadBookActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_reading, menu);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         return true;
     }
 
@@ -239,6 +260,9 @@ public class ReadBookActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case R.id.menu_pali_book:
+                openPaliBook();
+                break;
             case R.id.menu_addBookmark:
                 addToBookmark(viewPager.getCurrentItem() + 1);
                 break;
@@ -246,7 +270,9 @@ public class ReadBookActivity extends AppCompatActivity
                 copyToClipboard();
                 break;
             case R.id.menu_setting:
-                showSettingDialog();
+                Intent intent = new Intent(this, SettingActivity.class);
+                startActivityForResult(intent, LAUNCH_SETTING_ACTIVITY);
+//                showSettingDialog();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -259,25 +285,41 @@ public class ReadBookActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSubmitGotoDialog(int input) {
+    public void onSubmitGotoDialog(int input, int type) {
 
         int page = input;
+        if (type == PARAGRAPH) {
+            page = paragraph_map.get(input);
+        }
         viewPager.setCurrentItem(page - firstPage);
     }
 
     @Override
     public void onTocItemClick(int page) {
         viewPager.setCurrentItem(page - firstPage);
+    }
+
+    @Override
+    public void onChooseParagraph(int paragraph) {
+        Bundle bundle = new Bundle();
+        bundle.putString("book_id", DBOpenHelper.getInstance(this).getPaliBookID(bookID));
+        bundle.putInt("paragraph_number", paragraph);
+        Intent intent = new Intent("mm.pndaza.tipitakapali.BookReaderActivity");
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtras(bundle);
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            showNoPaliBook();
+        }
 
     }
 
-
-    public class LoadBook extends AsyncTask<Void, Void, Void> {
-
+    private class LoadBook extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
             try {
-                listOfPage = BookUtil.read(context, bookid);
+                listOfPage = BookUtil.read(context, bookID);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -294,6 +336,8 @@ public class ReadBookActivity extends AppCompatActivity
                     String pageContent = listOfPage.get(currentPage - 1).getPageContent();
                     pageContent = pageContent.replaceAll(
                             queryWord, "<span class=\"highlight\">" + queryWord + "</span>");
+                    pageContent = pageContent.replace(
+                            "<span class=\"highlight\">", "<span id=\"goto_001\" class=\"highlight\">");
                     listOfPage.set(currentPage - 1, new Page(currentPage, pageContent));
                 }
             }
@@ -308,17 +352,43 @@ public class ReadBookActivity extends AppCompatActivity
         }
     }
 
+    private void openPaliBook() {
+
+        ArrayList<Integer> paragraphs = getParagraphs(currentPage);
+        String pali_bookid = DBOpenHelper.getInstance(this).getPaliBookID(bookID);
+        Bundle bundle = new Bundle();
+        bundle.putString("book_id", pali_bookid);
+        bundle.putIntegerArrayList("paragraphs", paragraphs);
+
+        FragmentManager fm = getSupportFragmentManager();
+        ChooseParagraphDialog dialog = new ChooseParagraphDialog();
+        dialog.setArguments(bundle);
+        dialog.show(fm, "chooseParagraph");
+
+    }
+
+    private ArrayList<Integer> getParagraphs(int pageNumber) {
+        ArrayList<Integer> paragraphs = new ArrayList<>();
+        String pageContent = listOfPage.get(viewPager.getCurrentItem()).getPageContent();
+        final String regexParagraph = "<span class=\"paragraph\">([၀-၉]+)</span>";
+        final Matcher m = Pattern.compile(regexParagraph).matcher(pageContent);
+        while (m.find()) {
+            paragraphs.add(NumberUtil.toEnglish(m.group(1)));
+        }
+        return paragraphs;
+
+    }
 
     private void addToBookmark(int pageNumber) {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context, R.style.AlertDialogTheme);
 
         String message = "မှတ်လိုသောစာသား ရိုက်ထည့်ပါ။";
-        String comfirm = "သိမ်းမယ်";
+        String confirm = "သိမ်းမယ်";
         String cancel = "မသိမ်းတော့ဘူး";
         if (!MDetect.isUnicode()) {
             message = Rabbit.uni2zg(message);
-            comfirm = Rabbit.uni2zg(comfirm);
+            confirm = Rabbit.uni2zg(confirm);
             cancel = Rabbit.uni2zg(cancel);
         }
 
@@ -332,11 +402,11 @@ public class ReadBookActivity extends AppCompatActivity
         dialogBuilder.setMessage(message)
                 .setView(input)
                 .setCancelable(true)
-                .setPositiveButton(comfirm,
+                .setPositiveButton(confirm,
                         (dialog, id) -> {
                             String note = input.getText().toString();
                             DBOpenHelper.getInstance(context).
-                                    addToBookmark(note, bookid, pageNumber);
+                                    addToBookmark(note, bookID, pageNumber);
                             Cue.init()
                                     .with(context)
                                     .setMessage(MDetect.getDeviceEncodedText("သိမ်းမှတ်ပြီးပါပြီ။"))
@@ -351,7 +421,9 @@ public class ReadBookActivity extends AppCompatActivity
 
         input.setOnFocusChangeListener((v, hasFocus) -> input.post(() -> {
             InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputMethodManager.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+            if (inputMethodManager != null) {
+                inputMethodManager.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+            }
         }));
         input.requestFocus();
 
@@ -365,8 +437,10 @@ public class ReadBookActivity extends AppCompatActivity
         }
         String simpleText = pageContent.replaceAll("<[^>]*>", "");
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newHtmlText("ပိဋက", simpleText, pageContent);
-        clipboard.setPrimaryClip(clip);
+        ClipData clip = ClipData.newPlainText("ပိဋက", simpleText);
+        if (clipboard != null) {
+            clipboard.setPrimaryClip(clip);
+        }
         Cue.init()
                 .with(context)
                 .setMessage(MDetect.getDeviceEncodedText("ကော်ပီကူးယူပြီးပါပြီ။"))
@@ -375,11 +449,19 @@ public class ReadBookActivity extends AppCompatActivity
                 .show();
     }
 
-    private void showSettingDialog() {
-        FragmentManager fm = getSupportFragmentManager();
-        SettingDialogFragment settingDialog = new SettingDialogFragment();
-        settingDialog.show(fm, "Setting");
+    private void loadParagraphs(String bookID) {
+//        Log.d(TAG, "loadParagraphs: " + bookid);
+        paragraph_map = DBOpenHelper.getInstance(this).getParagraphs(bookID);
+//        Log.d(TAG, "loadParagraphs: " + paragraph_map.size());
+        firstParagraph = (int) Collections.min(paragraph_map.keySet());
+        lastParagraph = (int) Collections.max(paragraph_map.keySet());
     }
 
-
+    private void showNoPaliBook() {
+        new AlertDialog.Builder(this)
+                .setMessage(MDetect.getDeviceEncodedText("တိပိဋကပါဠိ ဆော့ဝဲလ် ထည့်သွင်းရန် လိုအပ်ပါသည်။"))
+                // A null listener allows the button to dismiss the dialog and take no further action.
+                .setPositiveButton("OK", null)
+                .show();
+    }
 }

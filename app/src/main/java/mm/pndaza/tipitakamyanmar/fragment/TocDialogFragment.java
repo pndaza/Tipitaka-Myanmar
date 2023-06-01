@@ -26,7 +26,7 @@ import mm.pndaza.tipitakamyanmar.adapter.TocAdapter;
 public class TocDialogFragment extends DialogFragment {
 
 
-    private TocDialogListener listener;
+    /*private TocDialogListener listener;
 
     public interface TocDialogListener {
 
@@ -134,6 +134,6 @@ public class TocDialogFragment extends DialogFragment {
             }
         });
 
-    }
+    }*/
 
 }

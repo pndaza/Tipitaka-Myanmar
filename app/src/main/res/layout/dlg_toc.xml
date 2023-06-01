@@ -1,14 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    style="@style/AppTheme"
-    android:background="@drawable/dialog_background">
+    android:orientation="vertical"
+    app:behavior_hideable="true"
+    app:behavior_peekHeight="0dp">
 
-    <ListView
-        android:id="@+id/lv_toc"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:nestedScrollingEnabled = "true"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:gravity="center"
+                android:text="@string/toc"
+                android:textAlignment="center"
+                android:textColor="@color/color_on_background"
+                android:textSize="21sp"
+                android:textStyle="bold" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#a0a0a0" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled = "true"
+                android:padding="16dp" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
 </LinearLayout>

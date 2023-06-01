@@ -9,6 +9,30 @@
         android:id="@+id/listView_books"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:src="@android:color/transparent"
+        android:padding = "8dp">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_sutta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:src="@android:color/transparent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/suttas"
+            android:elevation="14dp"
+            android:textSize="14dp"
+            android:textColor="@android:color/white"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </FrameLayout>
 
 </FrameLayout>
 

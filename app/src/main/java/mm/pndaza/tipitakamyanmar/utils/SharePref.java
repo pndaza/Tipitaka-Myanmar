@@ -10,6 +10,7 @@ public class SharePref {
     private static final String PREF_DB_COPY = "DBCopy";
     private static final String PREF_DB_VERSION = "DBVersion";
     private static final String PREF_FONT_SIZE = "FontSize";
+    private static final String PREF_FONT_STYLE = "FontStyle";
     private static final String PREF_NIGHT_MODE = "NightMode";
 
     private Context context;
@@ -35,18 +36,27 @@ public class SharePref {
     }
 
     public void noLongerFirstTime() {
-
         editor.putBoolean(PREF_FIRST_TIME, false);
     }
 
-    public void setPrefFontSize(String fontSize){
-        editor.putString(PREF_FONT_SIZE, fontSize);
+    public void setPrefFontStyle(String fontStyle){
+        editor.putString(PREF_FONT_STYLE, fontStyle);
         editor.apply();
     }
 
-    public String getPrefFontSize(){
-        String fontsize = sharedPreferences.getString(PREF_FONT_SIZE, "normal");
-        return fontsize;
+    public String getPrefFontStyle(){
+        MDetect.init(context);
+        String fontStyle = MDetect.isUnicode()? "unicode" : "zawgyi";
+        return sharedPreferences.getString(PREF_FONT_STYLE, fontStyle);
+    }
+
+    public void setPrefFontSize(int fontSize) {
+        editor.putInt(PREF_FONT_SIZE, fontSize);
+        editor.apply();
+    }
+
+    public int getPrefFontSize() {
+        return sharedPreferences.getInt(PREF_FONT_SIZE, 17);
     }
 
     public void setPrefNightModeState(boolean state){
@@ -55,8 +65,7 @@ public class SharePref {
     }
 
     public boolean getPrefNightModeState(){
-        Boolean state = sharedPreferences.getBoolean(PREF_NIGHT_MODE, false);
-        return state;
+        return sharedPreferences.getBoolean(PREF_NIGHT_MODE, false);
     }
 
     public void setDbCopyState(boolean state){
@@ -64,9 +73,10 @@ public class SharePref {
         editor.apply();
     }
 
-    public boolean isDatabaseCopyed(){
+    public boolean isDatabaseCopied(){
         return sharedPreferences.getBoolean(PREF_DB_COPY, true);
     }
+
     public int getDatabaseVersion(){
         return sharedPreferences.getInt(PREF_DB_VERSION,1);
     }
@@ -77,7 +87,7 @@ public class SharePref {
 
     public void saveDefault(){
         editor.putBoolean(PREF_DB_COPY, false);
-        editor.putString(PREF_FONT_SIZE, "normal");
+        editor.putInt(PREF_FONT_SIZE, 17);
         editor.putBoolean(PREF_NIGHT_MODE, false);
         editor.apply();
     }

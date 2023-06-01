@@ -1,0 +1,56 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/linearLayout"
+    android:padding="8dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <mm.pndaza.tipitakamyanmar.view.ZawgyiTextView
+        android:id="@+id/tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="@string/choose_paragraph"
+        android:gravity="center_vertical"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"/>
+
+    <Button
+        android:id="@+id/btn_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/close"
+        style="@style/PositiveButtonStyle"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"/>
+
+    <View
+        android:id="@+id/line"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginBottom="16dp"
+        android:background="#a0a0a0"
+        android:layout_below="@+id/tv_title"/>
+
+
+    <ListView
+        android:id="@+id/list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/line"/>
+
+    <TextView
+        android:id="@+id/tv_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/no_paragraph"
+        android:textAlignment="center"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/line"/>
+
+
+</RelativeLayout>

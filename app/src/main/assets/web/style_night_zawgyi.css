@@ -1,0 +1,23 @@
+﻿@font-face {
+     font-family: Zawgyi-One;
+     src: url('NotoSansZawgyi-Regular.ttf');
+}
+body { font-family: "Zawgyi-One" !important; line-height: 2.2em; color: #cccccc; background: black;}
+
+p { text-align:left;  font-size: 1.3em;}
+h1 { color:darkorange; text-align:center; font-size: 1.6em; font-weight: bold;}
+h2 { color:darkorange; text-align:center; font-size: 1.5em; font-weight: bold;}
+h3 { color:darkorange; text-align:center;  font-size: 1.4em; font-weight: bold;}
+h4 { color:darkorange; text-align:center; font-size: 1.3em; font-weight: bold;}
+h5 { color:darkorange; text-align:center;  font-size: 1.3em; font-weight: bold;}
+h6 { color:darkorange; text-align:center; font-size: 1.3em; font-weight: bold;}
+
+.title { color:darkorange; text-align:center; font-weight: bold;}
+.center {	text-align:center; font-weight: bold;}
+.ending {	text-align:center; font-weight: bold; font-size: 1.2em; }
+.indent { text-indent: 1.5em; }
+.unindent { text-indent: 0px; }
+.footnote { color: gray; font-size: 1.1em; }
+.highlight { color:white; background-color: magenta;}
+.paragraph { color:white; }
+.pali_title {text-align: center}

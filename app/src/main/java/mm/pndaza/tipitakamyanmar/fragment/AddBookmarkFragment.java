@@ -46,9 +46,9 @@ public class AddBookmarkFragment extends DialogFragment {
 
     private void initUI() {
 
-        SharePref sharePref = SharePref.getInstance(this.getContext());
+/*        SharePref sharePref = SharePref.getInstance(this.getContext());
         String fontSize = sharePref.getPrefFontSize();
-        boolean nightModeState = sharePref.getPrefNightModeState();
+        boolean nightModeState = sharePref.getPrefNightModeState();*/
     }
 
 }

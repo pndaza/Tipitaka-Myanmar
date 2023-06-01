@@ -1,111 +1,156 @@
 package mm.pndaza.tipitakamyanmar.adapter;
 
-import android.content.Context;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
 import mm.pndaza.tipitakamyanmar.R;
+import mm.pndaza.tipitakamyanmar.model.Toc;
+import mm.pndaza.tipitakamyanmar.utils.MDetect;
+import mm.pndaza.tipitakamyanmar.utils.Rabbit;
 
-public class TocAdapter extends BaseAdapter {
-    Context context;
-    ArrayList<String> tocList;
-    private static final int TOC_ITEM = 0;
-    private static final int HEADER = 1;
+public class TocAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private ArrayList<Toc> tocList;
+    private static final int TOC_LEVEL_1 = 1;
+    private static final int TOC_LEVEL_2 = 2;
+    private static final int TOC_LEVEL_3 = 3;
+    private static final int TOC_LEVEL_4 = 0;
 
-    public TocAdapter(Context context, ArrayList<String> tocList) {
-        this.context = context;
+    private OnItemClickListener onItemClickListener;
+
+    public TocAdapter(ArrayList<Toc> tocList, OnItemClickListener onItemClickListener) {
         this.tocList = tocList;
+        this.onItemClickListener = onItemClickListener;
     }
 
     @Override
     public int getItemViewType(int position) {
-        String toc = tocList.get(position);
-        // we want to bold heaidng1
+        Toc toc = tocList.get(position);
+        // we want to bold heading 1
         // 1(heading1) will be used as header
-        if (toc.startsWith("1")){
-            return HEADER;
-        } else {
-            return TOC_ITEM;
+        switch (toc.getType()){
+            case "1": return TOC_LEVEL_1;
+            case "2": return TOC_LEVEL_2;
+            case "3": return TOC_LEVEL_3;
+            default: return TOC_LEVEL_4;
         }
     }
 
     @Override
-    public int getViewTypeCount() {
-        return 2;
-    }
-
-    @Override
-    public int getCount() {
+    public int getItemCount() {
         return tocList.size();
     }
 
+    @NonNull
     @Override
-    public Object getItem(int i) {
-        return tocList.get(i);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view;
+        switch (viewType){
+            case TOC_LEVEL_1:
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.toc_level_1, parent, false);
+                return new ViewHolderTocLevel1(view);
+            case TOC_LEVEL_2:
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.toc_level_2, parent, false);
+                return new ViewHolderTocLevel2(view);
+            case TOC_LEVEL_3:
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.toc_level_3, parent, false);
+                return new ViewHolderTocLevel3(view);
+            case TOC_LEVEL_4:
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.toc_level_4, parent, false);
+                return new ViewHolderTocLevel4(view);
+        }
+        throw new IllegalArgumentException();
     }
 
     @Override
-    public long getItemId(int i) {
-        return i;
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof ViewHolderTocLevel1) {
+            ((ViewHolderTocLevel1) holder).tv_name.setText(MDetect.getDeviceEncodedText(tocList.get(position).getName()));
+        } else if (holder instanceof ViewHolderTocLevel2) {
+            ((ViewHolderTocLevel2) holder).tv_name.setText(MDetect.getDeviceEncodedText(tocList.get(position).getName()));
+        } else if (holder instanceof ViewHolderTocLevel3) {
+            ((ViewHolderTocLevel3) holder).tv_name.setText(MDetect.getDeviceEncodedText(tocList.get(position).getName()));
+        } else {
+            ((ViewHolderTocLevel4) holder).tv_name.setText(MDetect.getDeviceEncodedText(tocList.get(position).getName()));
+        }
     }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        // inflate the layout for each list row
-        if (convertView == null) {
-            switch (getItemViewType(position)){
-                case TOC_ITEM:
-                    convertView = LayoutInflater.from(context).
-                            inflate(R.layout.toc_list_item, parent, false);
-                    break;
-                case HEADER:
-                    convertView = LayoutInflater.from(context).
-                            inflate(R.layout.toc_list_header, parent, false);
-                    break;
-            }
+    class ViewHolderTocLevel1 extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        TextView tv_name;
+        public ViewHolderTocLevel1(@NonNull View itemView) {
+            super(itemView);
+            tv_name = itemView.findViewById(R.id.tv_name);
+            tv_name.setTypeface( Typeface.create(tv_name.getTypeface(), Typeface.BOLD));
+            tv_name.setOnClickListener(this);
         }
 
+        @Override
+        public void onClick(View view) {
+            onItemClickListener.onItemClick(tocList.get(getAdapterPosition()));
+        }
+    }
 
-        String toc = tocList.get(position);
+    class ViewHolderTocLevel2 extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        // icon_toc have three parts.
-        // type, data and pageNumber
-        // separated by ->
-        // icon_toc string is like that "1->အနုလောမဉာဏကထာ->308"
-        String[] tocdata = toc.split("->");
-        String toctype = tocdata[0];
-        String tocname = tocdata[1];
-        if( toctype.equals("2"))
-            tocname = "\t\t" + tocname;
-        else if ( toctype.equals("3"))
-            tocname = "\t\t\t" + tocname;
-        //int pagenum = Integer.valueOf(tocdata[2]);
-
-
-        switch (getItemViewType(position)){
-            case TOC_ITEM:
-                // get the TextView for item name and item description
-                TextView textViewToc = convertView.findViewById(R.id.tv_toc_listitem);
-                //set Toc
-                textViewToc.setText(tocname);
-                break;
-            case HEADER:
-                // get the TextView for item name and item description
-                TextView textViewHeader = convertView.findViewById(R.id.tv_toc_list_header);
-                textViewHeader.setTypeface(textViewHeader.getTypeface(), Typeface.BOLD);
-                //set toc type 1 as header
-                textViewHeader.setText(tocname);
-                break;
+        TextView tv_name;
+        public ViewHolderTocLevel2(@NonNull View itemView) {
+            super(itemView);
+            tv_name = itemView.findViewById(R.id.tv_name);
+            tv_name.setTypeface( tv_name.getTypeface(), Typeface.BOLD);
+            tv_name.setOnClickListener(this);
         }
 
+        @Override
+        public void onClick(View view) {
+            onItemClickListener.onItemClick(tocList.get(getAdapterPosition()));
+        }
+    }
 
-        // returns the view for the current row
-        return convertView;
+    class ViewHolderTocLevel3 extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        TextView tv_name;
+        public ViewHolderTocLevel3(@NonNull View itemView) {
+            super(itemView);
+            tv_name = itemView.findViewById(R.id.tv_name);
+//            tv_name.setTypeface( null, Typeface.BOLD);
+            tv_name.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            onItemClickListener.onItemClick(tocList.get(getAdapterPosition()));
+        }
+    }
+
+    class ViewHolderTocLevel4 extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        TextView tv_name;
+        public ViewHolderTocLevel4(@NonNull View itemView) {
+            super(itemView);
+            tv_name = itemView.findViewById(R.id.tv_name);
+//            tv_name.setTypeface( null, Typeface.BOLD);
+            tv_name.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            onItemClickListener.onItemClick(tocList.get(getAdapterPosition()));
+        }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(Toc toc);
     }
 }

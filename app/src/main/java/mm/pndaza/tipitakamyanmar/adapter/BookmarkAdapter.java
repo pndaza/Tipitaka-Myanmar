@@ -36,7 +36,6 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        // reuse layout because layout are same
         View wordListItemView = inflater.inflate(R.layout.bookmarklist_row_item, parent, false);
         return new ViewHolder(wordListItemView);
     }

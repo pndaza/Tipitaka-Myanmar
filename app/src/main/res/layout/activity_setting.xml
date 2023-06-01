@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/setting_rootView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.Toolbar
+        style="@style/Widget.MaterialComponents.Toolbar.Primary"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?android:actionBarSize"
+        android:elevation="@dimen/toolbar_elevation"
+        android:title="@string/app_name"
+        android:layout_alignParentTop="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/line"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        android:background="#c0c0c0"/>
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/theme"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/line">
+
+        <RadioGroup
+            android:id="@+id/rg_theme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:id="@+id/tv_themeTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/themeTitle"
+                android:textColor="@color/color_secondary"/>
+
+            <RadioButton
+                android:id="@+id/radio_theme_day"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/themeDay" />
+
+            <RadioButton
+                android:id="@+id/radio_theme_night"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/themeNight" />
+
+        </RadioGroup>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/font_style"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/theme">
+
+        <RadioGroup
+            android:id="@+id/rg_font_style"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:id="@+id/tv_font_style_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/fontStyleTitle"
+                android:textColor="@color/color_secondary"/>
+
+            <RadioButton
+                android:id="@+id/radio_font_zawgyi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/zawgyi" />
+
+            <RadioButton
+                android:id="@+id/radio_font_unicode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/unicode" />
+
+        </RadioGroup>
+
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/tv_fontSizeTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="@string/fontSize"
+        android:textColor="@color/color_secondary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/font_style"/>
+
+    <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+        android:id="@+id/fontsize_seekbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:dsb_indicatorColor="@color/color_secondary"
+        app:dsb_progressColor="@color/color_secondary"
+        app:dsb_trackColor="@android:color/white"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_fontSizeTitle"/>
+
+    <TextView
+        android:id="@+id/tv_fontSizeSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:gravity="center"
+        android:text="@string/fontSizeSmall"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fontsize_seekbar"/>
+    <TextView
+        android:id="@+id/tv_fontSizeNormal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/fontSizeNormal"
+        app:layout_constraintStart_toEndOf="@+id/tv_fontSizeSmall"
+        app:layout_constraintEnd_toStartOf="@+id/tv_fontSizeLarge"
+        app:layout_constraintTop_toBottomOf="@+id/fontsize_seekbar"/>
+    <TextView
+        android:id="@+id/tv_fontSizeLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingRight="16dp"
+        android:gravity="center"
+        android:text="@string/fontSizeLarge"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fontsize_seekbar"/>
+
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_fontSizeNormal"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

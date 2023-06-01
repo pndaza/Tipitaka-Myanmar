@@ -8,17 +8,23 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.SplashScreenActivity"
-            android:theme="@style/AppTheme.FullScreen">
+        <activity android:name="mm.pndaza.tipitakamyanmar.activity.SplashScreenActivity"
+            android:theme="@style/AppTheme.FullScreen"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.MainActivity"/>
-        <activity android:name=".activity.ReadBookActivity"
-            android:theme="@style/AppTheme"/>
+        <activity android:name="mm.pndaza.tipitakamyanmar.activity.MainActivity"/>
+        <activity android:name="mm.pndaza.tipitakamyanmar.activity.ReadBookActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="mm.pndaza.tipitakamyanmar.ReadBookActivity"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name="mm.pndaza.tipitakamyanmar.activity.SettingActivity"/>
     </application>
 
 </manifest>

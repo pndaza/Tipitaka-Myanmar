@@ -1,0 +1,10 @@
+﻿@font-face {
+     font-family: Zawgyi-One;
+     src: url('NotoSansZawgyi-Regular.ttf');
+}
+body {
+	font-family: "Zawgyi-One";
+	background-color: #111111;
+	color: white;
+}
+p { text-align: center; font-size: 1.3em}

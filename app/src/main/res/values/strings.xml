@@ -6,25 +6,48 @@
     <string name="title_recent">Recent</string>
     <string name="title_search">Search</string>
     <string name="title_info">Info</string>
+    <string name="goto_title">သို့</string>
     <string name="goto_page">စာမျက်နှာသို့</string>
-    <string name="goto_cancel">မလုပ်တော့ဘူး</string>
+    <string name="goto_paragraph">စာပိုဒ်သို့</string>
+    <string name="goto_cancel">မသွားတော့ဘူး</string>
     <string name="goto_go">သွားမယ်</string>
+    <string name="search_tip">စာမျက်နှာ(သို့)စာပိုဒ်</string>
     <string name="bookmark_mm">မှတ်သားချက်များ</string>
     <string name="bookmark_empty">သိမ်းမှတ်ထားသည်များ\nမရှိသေးပါ။</string>
     <string name="title_clearAll">ClearAll</string>
     <string name="recent_mm">ဖတ်ရှုဆဲ ကျမ်းစာများ</string>
     <string name="recent_empty">လက်တလော ဖတ်ထားသည့်စာအုပ်များ\nမရှိသေးပါ။</string>
+
     <string name="settingTitle">အပြင်အဆင်</string>
     <string name="fontSize">စာလုံးအရွယ်အစား</string>
     <string name="fontSizeSmall">အသေး</string>
     <string name="fontSizeNormal">အလတ်</string>
     <string name="fontSizeLarge">အကြီး</string>
-    <string name="theme">အရောင်အသွင်အပြင်</string>
+    <string name="themeTitle">အရောင်အသွင်အပြင်</string>
     <string name="themeDay">နေ့ (နောက်ခံအဖြူ စာလုံးမဲ)</string>
     <string name="themeNight">ည (နောက်ခံအမဲ စာလုံးဖြူ)</string>
+    <string name="fontStyleTitle">ဖွန့် (Font)</string>
+    <string name="zawgyi">ဇော်ဂျီ</string>
+    <string name="unicode">ယူနီကုဒ်</string>
+
     <string name="search_empty">ဟူသော စာသားကို ရှာမတွေ့ပါ။</string>
     <string name="info_mm">About app</string>
+    <string name="toc">မာတိကာ</string>
+    <string name="close">ပိတ်</string>
+    <string name="no_paragraph">ယခုစာမျက်နှာ၌ စာပိုဒ်နံပါတ်မပါ။</string>
+    <string name="choose_paragraph">စာပိုဒ်ရွေးပါ။</string>
+    <string name="suttas">သုတ်</string>
+    <string name="sutta_etc">သုတ်စသည်</string>
 
-
+    <string-array name="nikaya">
+        <item>ဝိနည်း</item>
+        <item>ဒီဃနိကာယ်</item>
+        <item>မဇ္ဈိမနိကာယ်</item>
+        <item>သံယုတ္တနိကာယ်</item>
+        <item>အင်္ဂုတ္တရနိကာယ်</item>
+        <item>ခုဒ္ဒကနိကာယ်</item>
+        <item>အဘိဓမ္မာ</item>
+        <item>အဋ္ဌကထာ</item>
+    </string-array>
 
 </resources>

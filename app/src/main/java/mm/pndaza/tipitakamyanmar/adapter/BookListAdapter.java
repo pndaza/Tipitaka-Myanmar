@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.model.Book;
+import mm.pndaza.tipitakamyanmar.utils.MDetect;
 
 public class BookListAdapter extends BaseAdapter {
 
@@ -21,14 +22,13 @@ public class BookListAdapter extends BaseAdapter {
     private static final int HEADER = 1;
 
     public BookListAdapter(Context context, ArrayList<Object> list) {
-
         this.context = context;
         this.list = list;
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (list.get(position) instanceof Book){
+        if (list.get(position) instanceof Book) {
             return BOOK_ITEM;
         } else {
             return HEADER;
@@ -55,51 +55,37 @@ public class BookListAdapter extends BaseAdapter {
         return i;
     }
 
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        if(convertView == null) {
-            switch (getItemViewType(position)){
+        if (convertView == null) {
+            switch (getItemViewType(position)) {
                 case BOOK_ITEM:
                     convertView = LayoutInflater.from(context).inflate(R.layout.book_list_item, parent, false);
-
                     break;
 
                 case HEADER:
                     convertView = LayoutInflater.from(context).inflate(R.layout.book_list_header, parent, false);
                     break;
             }
-
         }
 
-
-        switch (getItemViewType(position)){
+        switch (getItemViewType(position)) {
             case BOOK_ITEM:
-
                 // Lookup view for data population
                 TextView tvName = convertView.findViewById(R.id.tv_list_item);
                 // Populate the data into the template view using the data object
-                tvName.setText(((Book)list.get(position)).getName());
+                tvName.setText(MDetect.getDeviceEncodedText(((Book) list.get(position)).getName()));
                 break;
 
             case HEADER:
-
                 // Lookup view for data population
                 TextView tvHeader = convertView.findViewById(R.id.tv_list_header);
                 // Populate the data into the template view using the data object
-                tvHeader.setText((String)list.get(position));
-
+                tvHeader.setText(MDetect.getDeviceEncodedText((String) list.get(position)));
                 break;
         }
-
-
-
-
         // Return the completed view to render on screen
         return convertView;
     }
-
-
-
 }
