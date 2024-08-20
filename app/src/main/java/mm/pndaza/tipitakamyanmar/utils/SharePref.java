@@ -18,7 +18,7 @@ public class SharePref {
     protected SharedPreferences sharedPreferences;
     protected SharedPreferences.Editor editor;
 
-    public SharePref(Context context){
+    public SharePref(Context context) {
         this.context = context;
         sharedPreferences = context.getSharedPreferences(PREF_FILENAME, Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
@@ -39,14 +39,14 @@ public class SharePref {
         editor.putBoolean(PREF_FIRST_TIME, false);
     }
 
-    public void setPrefFontStyle(String fontStyle){
+    public void setPrefFontStyle(String fontStyle) {
         editor.putString(PREF_FONT_STYLE, fontStyle);
         editor.apply();
     }
 
-    public String getPrefFontStyle(){
+    public String getPrefFontStyle() {
         MDetect.init(context);
-        String fontStyle = MDetect.isUnicode()? "unicode" : "zawgyi";
+        String fontStyle = MDetect.isUnicode() ? "unicode" : "zawgyi";
         return sharedPreferences.getString(PREF_FONT_STYLE, fontStyle);
     }
 
@@ -59,33 +59,38 @@ public class SharePref {
         return sharedPreferences.getInt(PREF_FONT_SIZE, 17);
     }
 
-    public void setPrefNightModeState(boolean state){
+    public void setPrefNightModeState(boolean state) {
         editor.putBoolean(PREF_NIGHT_MODE, state);
         editor.apply();
     }
 
-    public boolean getPrefNightModeState(){
+    public boolean getPrefNightModeState() {
         return sharedPreferences.getBoolean(PREF_NIGHT_MODE, false);
     }
 
-    public void setDbCopyState(boolean state){
+    public void setDbCopyState(boolean state) {
         editor.putBoolean(PREF_DB_COPY, state);
         editor.apply();
     }
 
-    public boolean isDatabaseCopied(){
+    public boolean setDatabaseCopied() {
         return sharedPreferences.getBoolean(PREF_DB_COPY, true);
     }
 
-    public int getDatabaseVersion(){
-        return sharedPreferences.getInt(PREF_DB_VERSION,1);
+    public void setDatabaseCopied(boolean value) {
+        editor.putBoolean(PREF_DB_COPY, value);
+        editor.apply();
     }
 
-    public void setDatabaseVersion(int version){
+    public int getDatabaseVersion() {
+        return sharedPreferences.getInt(PREF_DB_VERSION, 1);
+    }
+
+    public void setDatabaseVersion(int version) {
         editor.putInt(PREF_DB_VERSION, version);
     }
 
-    public void saveDefault(){
+    public void saveDefault() {
         editor.putBoolean(PREF_DB_COPY, false);
         editor.putInt(PREF_FONT_SIZE, 17);
         editor.putBoolean(PREF_NIGHT_MODE, false);

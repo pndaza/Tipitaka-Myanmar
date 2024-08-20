@@ -202,6 +202,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
         return recentList;
     }
 
+
     private boolean isBookExistInRecent(String bookid) {
         Cursor cursor = this.getReadableDatabase()
                 .rawQuery("SELECT bookid FROM recent Where bookid = '" + bookid + "'", null);
