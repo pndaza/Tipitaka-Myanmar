@@ -1,1 +1,2 @@
 # Tipitaka-Myanmar
+Android Only
