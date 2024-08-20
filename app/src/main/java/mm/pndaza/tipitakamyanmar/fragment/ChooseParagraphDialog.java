@@ -1,11 +1,15 @@
 package mm.pndaza.tipitakamyanmar.fragment;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
@@ -26,10 +30,8 @@ public class ChooseParagraphDialog extends DialogFragment {
 
     private Context context;
     private ArrayList<Integer> paragraphs;
-    private TextView tv_empty;
-    private ParagraphListAdapter adapter;
-    private static final String TAG = "GotoExplanationDialog";
 
+    private static final String TAG = "GotoExplanationDialog";
     private OnChooseParagraphListener listener;
 
     public interface OnChooseParagraphListener {
@@ -42,6 +44,11 @@ public class ChooseParagraphDialog extends DialogFragment {
                              @Nullable Bundle savedInstanceState) {
 
         Window window = getDialog().getWindow();
+        WindowManager.LayoutParams params = window.getAttributes();
+        params.y =  +200;
+        params.gravity = Gravity.TOP;
+        window.setAttributes(params);
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         window.requestFeature(Window.FEATURE_NO_TITLE);
 
         return inflater.inflate(R.layout.dlg_choose_paragraph, container, false);
@@ -69,8 +76,11 @@ public class ChooseParagraphDialog extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         Bundle args = getArguments();
+
+        boolean isFromPreviousPage = false;
         if (args != null) {
             paragraphs = args.getIntegerArrayList("paragraphs");
+            isFromPreviousPage = args.getBoolean("is_from_previous_page");
         }
 
         TextView tv_title = view.findViewById(R.id.tv_title);
@@ -85,11 +95,20 @@ public class ChooseParagraphDialog extends DialogFragment {
         });
 
         ListView listView = view.findViewById(R.id.list_view);
-        tv_empty = view.findViewById(R.id.tv_empty);
-        tv_empty.setText(MDetect.getDeviceEncodedText(getString(R.string.no_paragraph)));
+        TextView tv_empty = view.findViewById(R.id.tv_empty);
+
+        TextView tv_additional_info = view.findViewById(R.id.tv_additional_info);
+        if(!isFromPreviousPage){
+            tv_additional_info.setVisibility(View.GONE);
+        } else {
+            String info = "ယခုစာမျက်နှာ၌ စာပိုဒ်နံပါတ် မပါသည့်အတွက်\\n ရှေ့စာမျက်နှာမှ စာပိုဒ်များကို ပြထားပါသည်။";
+            tv_additional_info.setText(MDetect.getDeviceEncodedText(info));
+        }
+
+//        tv_empty.setText(MDetect.getDeviceEncodedText(getString(R.string.no_paragraph)));
 //        tv_empty.setVisibility(View.GONE);
         listView.setEmptyView(tv_empty);
-        adapter = new ParagraphListAdapter(context, paragraphs);
+        ParagraphListAdapter adapter = new ParagraphListAdapter(context, paragraphs);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

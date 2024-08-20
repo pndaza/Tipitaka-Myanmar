@@ -30,11 +30,11 @@ import mm.pndaza.tipitakamyanmar.model.Sutta;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;
 
-public class SuttaDialogFragment extends DialogFragment implements SuttaListAdapter.OnItemClickListener{
-//    private ArrayList<Sutta> all_sutta = new ArrayList<>();
+public class SuttaDialogFragment extends DialogFragment implements SuttaListAdapter.OnItemClickListener {
+    //    private ArrayList<Sutta> all_sutta = new ArrayList<>();
     private ArrayList<Sutta> suttas = new ArrayList<>();
     private SuttaListAdapter adapter;
-    private  SuttaDialogListener listener;
+    private SuttaDialogListener listener;
 
     @Override
     public void onItemClick(Sutta sutta) {
@@ -81,15 +81,15 @@ public class SuttaDialogFragment extends DialogFragment implements SuttaListAdap
         double maxScaleFactor = 3.0;
         double clearSpace = 0.2;
         double scaleFactor = minScaleFactor;
-        while ( minScaleFactor <= maxScaleFactor){
-            if((scaleFactor + clearSpace) * xdpi < deviceWidth) {
+        while (minScaleFactor <= maxScaleFactor) {
+            if ((scaleFactor + clearSpace) * xdpi < deviceWidth) {
                 scaleFactor = minScaleFactor;
             }
             minScaleFactor += 0.2;
         }
 
-        int dialogWidth = (int)(xdpi * scaleFactor);
-        int dialogHeight = (int) (metrics.heightPixels * 0.65 );
+        int dialogWidth = (int) (xdpi * scaleFactor);
+        int dialogHeight = (int) (metrics.heightPixels * 0.65);
         // set width and height for dialog
         params.width = dialogWidth;
         params.height = dialogHeight;
@@ -118,7 +118,7 @@ public class SuttaDialogFragment extends DialogFragment implements SuttaListAdap
         sutta_list.setLayoutManager(new LinearLayoutManager(context));
         sutta_list.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
-        adapter = new SuttaListAdapter( suttas,this);
+        adapter = new SuttaListAdapter(suttas, this);
         sutta_list.setAdapter(adapter);
 
         SearchView filterInput = view.findViewById(R.id.filter_input);
@@ -139,18 +139,19 @@ public class SuttaDialogFragment extends DialogFragment implements SuttaListAdap
                     filter = Rabbit.zg2uni(filter);
                 }
 
-                    doFilter(filter);
+                doFilter(filter);
                 return false;
             }
         });
 
     }
+
     private void doFilter(String filter) {
         if (filter.isEmpty()) {
-            adapter.setFilteredWordList( new ArrayList<>());
+            adapter.setFilteredWordList(new ArrayList<>());
             adapter.setFilterText("");
         } else {
-        suttas = DBOpenHelper.getInstance(getContext()).getSuttas(filter);
+            suttas = DBOpenHelper.getInstance(getContext()).getSuttas(filter);
             Log.d("TAG", "doFilter: " + suttas.size());
             adapter.setFilteredWordList(suttas);
             adapter.setFilterText(filter);

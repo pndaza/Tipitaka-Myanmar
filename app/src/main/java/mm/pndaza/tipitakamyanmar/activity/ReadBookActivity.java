@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputType;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
@@ -22,9 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
-import com.fxn.cue.Cue;
-import com.fxn.cue.enums.Duration;
-import com.fxn.cue.enums.Type;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
@@ -32,8 +30,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.adapter.PageAdapter;
@@ -52,7 +48,7 @@ import mm.pndaza.tipitakamyanmar.utils.Rabbit;
 
 public class ReadBookActivity extends AppCompatActivity
         implements GotoDialogFragment.GotoDialogListener,
-        TocBottomSheetDialogFragment.OnItemClickListener,
+        TocBottomSheetDialogFragment.OnTocItemClickListener,
         ChooseParagraphDialog.OnChooseParagraphListener {
 
     private Context context;
@@ -207,6 +203,7 @@ public class ReadBookActivity extends AppCompatActivity
             @Override
             public void onStopTrackingTouch(DiscreteSeekBar seekBar) {
                 viewPager.setCurrentItem(seekBar.getProgress() - firstPage);
+                currentPage = viewPager.getCurrentItem() + 1;
 
             }
         });
@@ -222,6 +219,7 @@ public class ReadBookActivity extends AppCompatActivity
             @Override
             public void onPageSelected(int i) {
                 seekBar.setProgress(firstPage + i);
+                currentPage = i + firstPage;
                 DBOpenHelper.getInstance(context).addToRecent(bookID, i + 1);
             }
 
@@ -292,11 +290,18 @@ public class ReadBookActivity extends AppCompatActivity
             page = paragraph_map.get(input);
         }
         viewPager.setCurrentItem(page - firstPage);
+        currentPage = page;
     }
 
     @Override
-    public void onTocItemClick(int page) {
+    public void onTocItemClick(int page, String tocName) {
+        String textToHighlight = tocName;
+        textToHighlight = textToHighlight.replaceAll("[၀-၉]+။ ", "");
+        pageAdapter.updatePageToHighlight(page);
+        pageAdapter.updateHighlightedText(textToHighlight);
+        Log.d(TAG, "onTocItemClick: " + textToHighlight);
         viewPager.setCurrentItem(page - firstPage);
+
     }
 
     @Override
@@ -341,7 +346,7 @@ public class ReadBookActivity extends AppCompatActivity
                     listOfPage.set(currentPage - 1, new Page(currentPage, pageContent));
                 }
             }
-            pageAdapter = new PageAdapter(context, listOfPage);
+            pageAdapter = new PageAdapter(context, listOfPage, queryWord, currentPage - 1);
             viewPager.setAdapter(pageAdapter);
             if (currentPage != 0) {
                 viewPager.setCurrentItem(currentPage - firstPage);
@@ -353,12 +358,40 @@ public class ReadBookActivity extends AppCompatActivity
     }
 
     private void openPaliBook() {
-
+        Log.d(TAG, "openPaliBook: current page: " + currentPage);
         ArrayList<Integer> paragraphs = getParagraphs(currentPage);
-        String pali_bookid = DBOpenHelper.getInstance(this).getPaliBookID(bookID);
+        boolean isResultFromPreviousPage = false;
+        if (paragraphs.isEmpty()) {
+            // finding nearest paragraphs
+            int previousPage = currentPage - 1;
+            while (previousPage >= firstPage) {
+                paragraphs = DBOpenHelper.getInstance(this).getParagraphs(bookID, previousPage);
+                if (!paragraphs.isEmpty()) {
+                    isResultFromPreviousPage = true;
+                    break;
+                }
+                previousPage--;
+            }
+        }
+        // first paragraph
+        if (paragraphs.isEmpty()) {
+            int firstParagraph = DBOpenHelper.getInstance(this).getFirstParagraph(bookID);
+            if (firstParagraph > 0) {
+                paragraphs = getParagraphs(firstParagraph);
+            }
+        }
+
+        String paliBookID = DBOpenHelper.getInstance(this).getPaliBookID(bookID);
         Bundle bundle = new Bundle();
-        bundle.putString("book_id", pali_bookid);
+        bundle.putString("book_id", paliBookID);
         bundle.putIntegerArrayList("paragraphs", paragraphs);
+
+        if (isResultFromPreviousPage) {
+            bundle.putBoolean("is_from_previous_page", true);
+        } else {
+            bundle.putBoolean("is_from_previous_page", false);
+
+        }
 
         FragmentManager fm = getSupportFragmentManager();
         ChooseParagraphDialog dialog = new ChooseParagraphDialog();
@@ -368,16 +401,17 @@ public class ReadBookActivity extends AppCompatActivity
     }
 
     private ArrayList<Integer> getParagraphs(int pageNumber) {
-        ArrayList<Integer> paragraphs = new ArrayList<>();
+        /*
         String pageContent = listOfPage.get(viewPager.getCurrentItem()).getPageContent();
         final String regexParagraph = "<span class=\"paragraph\">([၀-၉]+)</span>";
         final Matcher m = Pattern.compile(regexParagraph).matcher(pageContent);
         while (m.find()) {
             paragraphs.add(NumberUtil.toEnglish(m.group(1)));
         }
-        return paragraphs;
-
+        */
+        return DBOpenHelper.getInstance(this).getParagraphs(bookID, pageNumber);
     }
+
 
     private void addToBookmark(int pageNumber) {
 
@@ -407,13 +441,9 @@ public class ReadBookActivity extends AppCompatActivity
                             String note = input.getText().toString();
                             DBOpenHelper.getInstance(context).
                                     addToBookmark(note, bookID, pageNumber);
-                            Cue.init()
-                                    .with(context)
-                                    .setMessage(MDetect.getDeviceEncodedText("သိမ်းမှတ်ပြီးပါပြီ။"))
-                                    .setGravity(Gravity.CENTER_VERTICAL)
-                                    .setDuration(Duration.LONG)
-                                    .setType(Type.SUCCESS)
-                                    .show();
+
+                            showSnackbar(MDetect.getDeviceEncodedText("သိမ်းမှတ်ပြီးပါပြီ။"));
+
                         })
                 .setNegativeButton(cancel, (dialog, id) -> {
                 });
@@ -441,20 +471,21 @@ public class ReadBookActivity extends AppCompatActivity
         if (clipboard != null) {
             clipboard.setPrimaryClip(clip);
         }
-        Cue.init()
-                .with(context)
-                .setMessage(MDetect.getDeviceEncodedText("ကော်ပီကူးယူပြီးပါပြီ။"))
-                .setGravity(Gravity.TOP | Gravity.RIGHT)
-                .setType(Type.PRIMARY)
-                .show();
+
+        showSnackbar(MDetect.getDeviceEncodedText("ကော်ပီကူးယူပြီးပါပြီ။"));
     }
 
     private void loadParagraphs(String bookID) {
 //        Log.d(TAG, "loadParagraphs: " + bookid);
         paragraph_map = DBOpenHelper.getInstance(this).getParagraphs(bookID);
 //        Log.d(TAG, "loadParagraphs: " + paragraph_map.size());
-        firstParagraph = (int) Collections.min(paragraph_map.keySet());
-        lastParagraph = (int) Collections.max(paragraph_map.keySet());
+        if (paragraph_map.isEmpty()) {
+            firstParagraph = 0;
+            lastParagraph = 0;
+        } else {
+            firstParagraph = (int) Collections.min(paragraph_map.keySet());
+            lastParagraph = (int) Collections.max(paragraph_map.keySet());
+        }
     }
 
     private void showNoPaliBook() {
@@ -463,5 +494,10 @@ public class ReadBookActivity extends AppCompatActivity
                 // A null listener allows the button to dismiss the dialog and take no further action.
                 .setPositiveButton("OK", null)
                 .show();
+    }
+
+    private void showSnackbar(String message) {
+        Snackbar.make(viewPager, message, Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
     }
 }

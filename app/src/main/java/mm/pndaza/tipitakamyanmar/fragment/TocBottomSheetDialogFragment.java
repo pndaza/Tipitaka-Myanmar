@@ -2,12 +2,9 @@ package mm.pndaza.tipitakamyanmar.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,15 +20,13 @@ import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.adapter.TocAdapter;
 import mm.pndaza.tipitakamyanmar.model.Toc;
 
-import static android.content.ContentValues.TAG;
-
 
 public class TocBottomSheetDialogFragment extends BottomSheetDialogFragment implements TocAdapter.OnItemClickListener{
 
-    private OnItemClickListener listener;
+    private OnTocItemClickListener listener;
 
-    public interface OnItemClickListener {
-        void onTocItemClick(int page);
+    public interface OnTocItemClickListener {
+        void onTocItemClick(int page, String tocName);
     }
 
     @Nullable
@@ -44,8 +39,8 @@ public class TocBottomSheetDialogFragment extends BottomSheetDialogFragment impl
     public void onAttach(Context context) {
 
         super.onAttach(context);
-        if (context instanceof OnItemClickListener) {
-            listener = (OnItemClickListener) context;
+        if (context instanceof OnTocItemClickListener) {
+            listener = (OnTocItemClickListener) context;
         } else {
             throw new ClassCastException(context.toString()
                     + " must implement TocBottomSheetDialogFragment.TocDialogItemClickListener");
@@ -87,8 +82,7 @@ public class TocBottomSheetDialogFragment extends BottomSheetDialogFragment impl
 
     @Override
     public void onItemClick(Toc toc) {
-        int pageNumber = toc.getPage();
-        listener.onTocItemClick(pageNumber);
+        listener.onTocItemClick(toc.getPage(), toc.getName());
         dismiss();
     }
 }

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
 import mm.pndaza.tipitakamyanmar.model.Bookmark;
+import mm.pndaza.tipitakamyanmar.model.Recent;
 import mm.pndaza.tipitakamyanmar.utils.SharePref;
 
 
@@ -29,6 +30,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     private static String OUTPUT_PATH;
 //    private static int latestDatabaseVersion;
     private ArrayList<Bookmark> bookmarks = new ArrayList<>();
+    private ArrayList<Recent> recents = new ArrayList<>();
     SharePref sharePref;
 
     @Override
@@ -67,6 +69,8 @@ public class SplashScreenActivity extends AppCompatActivity {
                 // update database
                 sharePref.saveDefault();
                 bookmarks = backupBookmarks();
+                recents = backupRecents();
+
                 deleteDatabase();
                 copyDatabase(latestDatabaseVersion);
             }
@@ -117,6 +121,7 @@ public class SplashScreenActivity extends AppCompatActivity {
 //                Log.d(TAG, "doInBackground: restoring backup bookmark");
 //                Log.d(TAG, "doInBackground: Bookmark count - " + bookmarks.size() );
                 restoreBookmark(bookmarks);
+                restoreRecents(recents);
             }
 
             return dbVersion;
@@ -163,6 +168,18 @@ public class SplashScreenActivity extends AppCompatActivity {
         return new File(OUTPUT_PATH, DATABASE_FILENAME).delete();
     }
 
+    private ArrayList<Recent> backupRecents(){
+        ArrayList<Recent> recents = DBOpenHelper.getInstance(this).getAllRecent();
+        DBOpenHelper.getInstance(this).close();
+        return recents;
+    }
+
+    private void restoreRecents(ArrayList<Recent> recents){
+
+        for (Recent recent: recents){
+            DBOpenHelper.getInstance(this).addToRecent( recent.getBookid(), recent.getPageNumber());
+        }
+    }
     private ArrayList<Bookmark> backupBookmarks(){
         ArrayList<Bookmark> bookmarks = DBOpenHelper.getInstance(this).getBookmarks();
         DBOpenHelper.getInstance(this).close();

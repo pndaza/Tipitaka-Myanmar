@@ -2,6 +2,7 @@ package mm.pndaza.tipitakamyanmar.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -29,6 +30,9 @@ public class PageAdapter extends PagerAdapter {
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<Page> pages;
+    String textToHighlight;
+    int pageToHighlight;
+
     private boolean control_bar_view_state;
     private LinearLayout control_bar;
     private static int fontSize;
@@ -38,9 +42,11 @@ public class PageAdapter extends PagerAdapter {
     public GestureDetectorCompat mDetector;
 
 
-    public PageAdapter(Context context, ArrayList<Page> pages) {
+    public PageAdapter(Context context, ArrayList<Page> pages, String textToHighlight, int pageToHighlight) {
         this.context = context;
         this.pages = pages;
+        this.textToHighlight = textToHighlight;
+        this.pageToHighlight = pageToHighlight;
         control_bar_view_state = true;
         layoutInflater = LayoutInflater.from(this.context);
         style = getStyle();
@@ -69,6 +75,10 @@ public class PageAdapter extends PagerAdapter {
         control_bar = ((ReadBookActivity) context).findViewById(R.id.control_bar);
         String content = pages.get(position).getPageContent();
         int pageNumber = pages.get(position).getPageNumber();
+        if (textToHighlight != null && !textToHighlight.isEmpty() && pageToHighlight == pageNumber) {
+            content = setHighlight(content, textToHighlight);
+        }
+
         String formattedContent = formatContent(content, style, pageNumber);
         String fontStyle = SharePref.getInstance(context).getPrefFontStyle();
         if (fontStyle.equals("zawgyi")) {
@@ -158,6 +168,25 @@ public class PageAdapter extends PagerAdapter {
             ((ReadBookActivity) context).getSupportActionBar().show();
             control_bar.setVisibility(View.VISIBLE);
         }
+    }
+
+    public void updateHighlightedText(String textToHighlight){
+        this.textToHighlight = textToHighlight;
+    }
+
+    public void  updatePageToHighlight(int pageToHighlight){
+        this.pageToHighlight = pageToHighlight;
+    }
+    private String setHighlight(String content, String textToHighlight) {
+
+        // TODO optimize highlight for some query text
+        String highlightedText = "<span class = \"highlight\">" + textToHighlight + "</span>";
+        content = content.replace(textToHighlight, highlightedText);
+        content = content.replaceFirst(
+                "<span class = \"highlight\">", "<span id=\"goto_001\" class=\"highlight\">");
+        Log.d("setHighlight: ", content        );
+        return content;
+
     }
 
     class MyGestureListener extends GestureDetector.SimpleOnGestureListener {

@@ -38,6 +38,8 @@
     <string name="choose_paragraph">စာပိုဒ်ရွေးပါ။</string>
     <string name="suttas">သုတ်</string>
     <string name="sutta_etc">သုတ်စသည်</string>
+    <string name="additional_info">ယခုစာမျက်နှာ၌ စာပိုဒ်နံပါတ် မပါသည့်အတွက်\n ရှေ့စာမျက်နှာမှ စာပိုဒ်များကို ပြထားပါသည်။</string>
+    <string name="add_note">မှတ်လိုသောစာသား ရိုက်ထည့်ပါ</string>
 
     <string-array name="nikaya">
         <item>ဝိနည်း</item>
