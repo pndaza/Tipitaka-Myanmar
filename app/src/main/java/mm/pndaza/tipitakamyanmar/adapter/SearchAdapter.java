@@ -6,7 +6,6 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,21 +17,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import mm.pndaza.tipitakamyanmar.R;
-import mm.pndaza.tipitakamyanmar.model.Search;
+import mm.pndaza.tipitakamyanmar.model.SearchResult;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.NumberUtil;
 
 
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder> {
 
-    private ArrayList<Search> searchResults;
+    private ArrayList<SearchResult> searchResultResults;
     private String queryWord;
     private View.OnClickListener onClickListener;
 
     private Context context;
 
-    public SearchAdapter(ArrayList<Search> searchResults, String queryWord) {
-        this.searchResults = searchResults;
+    public SearchAdapter(ArrayList<SearchResult> searchResultResults, String queryWord) {
+        this.searchResultResults = searchResultResults;
         this.queryWord = queryWord;
     }
 
@@ -48,15 +47,15 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        final Search search = searchResults.get(position);
-        String bookAndPage = search.getBookName() + " - နှာ " + NumberUtil.toMyanmar(search.getPageNumber());
+        final SearchResult searchResult = searchResultResults.get(position);
+        String bookAndPage = searchResult.bookName() + " - နှာ " + NumberUtil.toMyanmar(searchResult.pageNumber());
         holder.tvBookAndPage.setText(MDetect.getDeviceEncodedText(bookAndPage));
-        holder.tvBrief.setText(getHighLightedString(search.getBrief(),queryWord));
+        holder.tvBrief.setText(getHighLightedString(searchResult.brief(),queryWord));
     }
 
     @Override
     public int getItemCount() {
-        return searchResults.size();
+        return searchResultResults.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

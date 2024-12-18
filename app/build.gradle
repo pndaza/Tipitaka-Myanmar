@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
 android {
     namespace 'mm.pndaza.tipitakamyanmar'
@@ -7,8 +9,8 @@ android {
         applicationId "mm.pndaza.tipitakamyanmar"
         minSdk 21
         targetSdk 35
-        versionCode 16
-        versionName "27.08.2024"
+        versionCode 18
+        versionName "1.1.2025"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -18,8 +20,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = '1.8'
-        targetCompatibility = '1.8'
+        sourceCompatibility = '17'
+        targetCompatibility = '17'
     }
 
 }
@@ -29,10 +31,13 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "androidx.appcompat:appcompat:1.7.0"
     implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+//    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+    implementation "androidx.activity:activity:1.9.3"
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation "androidx.viewpager2:viewpager2:1.1.0"
+    implementation group: 'org.jsoup', name: 'jsoup', version: '1.18.1'
+
 
 //    implementation 'org.adw.library:discrete-seekbar:1.0.1'
     implementation 'com.github.phonghoang1023:DiscreteSeekBar:1.1'
@@ -40,8 +45,9 @@ dependencies {
 //    implementation 'com.fxn769:cue:1.1'
     implementation 'com.kaopiz:kprogresshud:1.2.0'
     implementation 'com.simplecityapps:recyclerview-fastscroll:2.0.1'
+    implementation 'com.google.firebase:firebase-crashlytics:19.3.0'
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test:runner:1.6.1'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 }

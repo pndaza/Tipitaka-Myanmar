@@ -27,6 +27,7 @@ import mm.pndaza.tipitakamyanmar.adapter.BookmarkAdapter;
 import mm.pndaza.tipitakamyanmar.callback.SwipeToDeleteCallback;
 import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
 import mm.pndaza.tipitakamyanmar.model.Bookmark;
+import mm.pndaza.tipitakamyanmar.repository.BookmarkRepository;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;
 
@@ -42,7 +43,7 @@ public class BookmarkFragment extends Fragment {
     private ArrayList<Bookmark> bookmarks;
     private OnBookmarkItemClickListener callbackListener;
 
-
+private BookmarkRepository bookmarkRepository;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -56,6 +57,7 @@ public class BookmarkFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         context = view.getContext();
+        bookmarkRepository = new BookmarkRepository(DBOpenHelper.getInstance(context));
         //bind view
         bookmarkListView = view.findViewById(R.id.listView_bookmark);
         bookmarkListView.setLayoutManager(new LinearLayoutManager(context));
@@ -79,7 +81,7 @@ public class BookmarkFragment extends Fragment {
     }
 
     private void setupBookmarkList() {
-        bookmarks = DBOpenHelper.getInstance(context).getBookmarks();
+        bookmarks = bookmarkRepository.getBookmarks();
         final BookmarkAdapter adapter = new BookmarkAdapter(bookmarks);
         bookmarkListView.setAdapter(adapter);
         adapter.setOnClickListener( view -> {
@@ -133,7 +135,7 @@ public class BookmarkFragment extends Fragment {
                 .setCancelable(true)
                 .setPositiveButton(comfirm,
                         (dialog, id) -> {
-                            DBOpenHelper.getInstance(context).removeAllBookmarks();
+                            bookmarkRepository.removeAllBookmarks();
                             setupBookmarkList();
                             setupEmptyInfoView(emptyInfoView);
                         })

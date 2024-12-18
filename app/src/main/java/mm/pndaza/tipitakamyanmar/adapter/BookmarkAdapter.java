@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
 import mm.pndaza.tipitakamyanmar.model.Bookmark;
+import mm.pndaza.tipitakamyanmar.repository.BookmarkRepository;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.NumberUtil;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;
@@ -77,9 +78,9 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
     }
 
 
-    public void deleteItem(int position){
+    public void deleteItem(int position) {
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context,R.style.AlertDialogTheme);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context, R.style.AlertDialogTheme);
         String message = "သိမ်းမှတ်ထားသည်ကို ဖျက်မှာလား";
         String comfirm = "ဖျက်မယ်";
         String cancel = "မဖျက်တော့ဘူး";
@@ -93,7 +94,7 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
                 .setCancelable(true)
                 .setPositiveButton(comfirm,
                         (dialog, id) -> {
-                            DBOpenHelper.getInstance(context).removeFromBookmark(position);
+                            new BookmarkRepository(DBOpenHelper.getInstance(context)).removeFromBookmark(position);
                             bookmarkList.remove(position);
                             notifyDataSetChanged();
                         })

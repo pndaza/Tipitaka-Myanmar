@@ -1,8 +1,6 @@
 package mm.pndaza.tipitakamyanmar.fragment;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,6 +15,7 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -28,10 +27,16 @@ import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.adapter.BookListAdapter;
 import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
 import mm.pndaza.tipitakamyanmar.model.Book;
+import mm.pndaza.tipitakamyanmar.model.Category;
+import mm.pndaza.tipitakamyanmar.repository.BookRepository;
+import mm.pndaza.tipitakamyanmar.repository.CategoryRepository;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.SharePref;
 
 public class HomeFragment extends Fragment {
+    private BookRepository bookRepository;
+    private CategoryRepository categoryRepository;
+    private final ArrayList<Object> books = new ArrayList<>();
 
     public interface OnBookItemClickListener {
         void onBookItemClick(String bookID);
@@ -43,7 +48,11 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        getActivity().setTitle(MDetect.getDeviceEncodedText(getString(R.string.app_name_mm)));
+        FragmentActivity activity = getActivity();
+        if (activity != null) {
+            activity.setTitle(MDetect.getDeviceEncodedText(getString(R.string.app_name_mm)));
+
+        }
         setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
@@ -52,20 +61,27 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         MDetect.init(getContext());
+        bookRepository = new BookRepository(DBOpenHelper.getInstance(getContext()));
+        categoryRepository = new CategoryRepository(DBOpenHelper.getInstance(getContext()));
+
         initListView();
         FloatingActionButton fab = view.findViewById(R.id.fab_sutta);
         fab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
-                FragmentManager fm = getFragmentManager();
-                SuttaDialogFragment suttaDialog = new SuttaDialogFragment();
-                suttaDialog.show(fm, "TOC");
+                FragmentActivity activity = getActivity();
+                if (activity != null) {
+                    FragmentManager fm = activity.getSupportFragmentManager();
+                    SuttaDialogFragment suttaDialog = new SuttaDialogFragment();
+                    suttaDialog.show(fm, "TOC");
+
+                }
             }
         });
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             callbackListener = (OnBookItemClickListener) context;
@@ -76,32 +92,12 @@ public class HomeFragment extends Fragment {
 
     private void initListView() {
 
-        ArrayList<Object> books = new ArrayList<>();
-        DBOpenHelper db = DBOpenHelper.getInstance(getContext());
-        SQLiteDatabase sqLiteDatabase = db.getReadableDatabase();
-
-        String[] nikaya_list = getResources().getStringArray(R.array.nikaya);
-        int countOfNikaya = nikaya_list.length;
-        String bookID;
-        String bookName;
-        String sql;
-
-        //Add books and header to ArrayList
-        for (int i = 0; i < countOfNikaya; i++) {
-            // add book_header
-            books.add(nikaya_list[i]);
-            // add book
-            int category = i + 1; // category is starting from 1
-            sql = "select id, name from book where category_id = " + category;
-            Cursor cursor = sqLiteDatabase.rawQuery(sql, null);
-            if (cursor != null && cursor.moveToFirst()) {
-                do {
-                    bookID = cursor.getString(0);
-                    bookName = cursor.getString((1));
-                    books.add(new Book(bookID, bookName));
-                } while (cursor.moveToNext());
-                cursor.close();
-            }
+//        ArrayList<Object> books = new ArrayList<>();
+        ArrayList<Category> categories = categoryRepository.getAllCategories();
+        for (Category category : categories) {
+            books.add(category);
+            ArrayList<Book> booksPerCategory = bookRepository.getBooksByCategory(category.id);
+            books.addAll(booksPerCategory);
         }
 
         BookListAdapter bookListAdapter = new BookListAdapter(getContext(), books);
@@ -110,8 +106,7 @@ public class HomeFragment extends Fragment {
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> listView, View view, int position, long arg3) {
-                if (listView.getItemAtPosition(position) instanceof Book) {
-                    Book book = (Book) listView.getItemAtPosition(position);
+                if (listView.getItemAtPosition(position) instanceof Book book) {
                     callbackListener.onBookItemClick(book.getId());
                 }
             }
@@ -137,18 +132,18 @@ public class HomeFragment extends Fragment {
 
     private void showInfoDialog() {
 
-/*        new MaterialAlertDialogBuilder(this)
-                .setTitle("အကြောင်းအရာ")
-                .setMessage("ပါဠိတော်မြန်မာပြန်ကျမ်းစာများကို ဖတ်ရှုနိုင်ပါသည်").show();*/
+        Context context = getContext();
+        if (context != null) {
 
-        WebView webView = new WebView(getContext());
-        // populate the WebView with an HTML string
-        if(SharePref.getInstance(getContext()).getPrefNightModeState()) {
-            webView.loadUrl("file:///android_asset/web/info-night.html");
-        } else {
-            webView.loadUrl("file:///android_asset/web/info.html");
+            WebView webView = new WebView(context);
+            // populate the WebView with an HTML string
+            if (SharePref.getInstance(getContext()).getPrefNightModeState()) {
+                webView.loadUrl("file:///android_asset/web/info-night.html");
+            } else {
+                webView.loadUrl("file:///android_asset/web/info.html");
+            }
+            new MaterialAlertDialogBuilder(getContext()).setView(webView).show();
         }
-        new MaterialAlertDialogBuilder(getContext()).setView(webView).show();
     }
 
 }

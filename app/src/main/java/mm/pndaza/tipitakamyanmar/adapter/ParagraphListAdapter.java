@@ -9,29 +9,30 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import mm.pndaza.tipitakamyanmar.model.Paragraph;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.NumberUtil;
 
 public class ParagraphListAdapter extends BaseAdapter {
 
-    private Context context;
-    private ArrayList<Integer> para_list;
+    final private Context context;
+    final private ArrayList<Paragraph> paragraphs;
 
-    public ParagraphListAdapter(Context context, ArrayList<Integer> list) {
+    public ParagraphListAdapter(Context context, ArrayList<Paragraph> list) {
 
         this.context = context;
-        this.para_list = list;
+        this.paragraphs = list;
     }
 
 
     @Override
     public int getCount() {
-        return para_list.size(); //returns total of items in the booksList
+        return paragraphs.size(); //returns total of items in the booksList
     }
 
     @Override
-    public Integer getItem(int position) {
-        return para_list.get(position); //returns booksList item at the specified position
+    public Paragraph getItem(int position) {
+        return paragraphs.get(position); //returns booksList item at the specified position
     }
 
     @Override
@@ -47,8 +48,8 @@ public class ParagraphListAdapter extends BaseAdapter {
             convertView = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_1, parent, false);
         }
         TextView textView = convertView.findViewById(android.R.id.text1);
-        int baseParagraph = para_list.get(position);
-        textView.setText(MDetect.getDeviceEncodedText( "စာပိုဒ် အမှတ် - " + NumberUtil.toMyanmar(baseParagraph)));
+        Paragraph paragraph = paragraphs.get(position);
+        textView.setText(MDetect.getDeviceEncodedText( "စာပိုဒ် အမှတ် - " + NumberUtil.toMyanmar(paragraph.number)));
 
         return convertView;
     }

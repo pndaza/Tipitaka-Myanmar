@@ -27,6 +27,9 @@ import mm.pndaza.tipitakamyanmar.data.Constants;
 import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
 import mm.pndaza.tipitakamyanmar.model.Bookmark;
 import mm.pndaza.tipitakamyanmar.model.Recent;
+import mm.pndaza.tipitakamyanmar.repository.BookmarkRepository;
+import mm.pndaza.tipitakamyanmar.repository.RecentRepository;
+import mm.pndaza.tipitakamyanmar.utils.SQLBuilder;
 import mm.pndaza.tipitakamyanmar.utils.SharePref;
 
 
@@ -37,6 +40,10 @@ public class SplashScreenActivity extends AppCompatActivity {
     //    private static int latestDatabaseVersion;
     private ArrayList<Bookmark> bookmarks = new ArrayList<>();
     private ArrayList<Recent> recents = new ArrayList<>();
+    private static final String OLD_BOOK_ID_COLUMN_NAME = "bookid";
+    private static final String OLD_PAGE_NUMBER_COLUMN_NAME = "pagenumber";
+    private static final String NEW_BOOK_ID_COLUMN_NAME = "book_id";
+    private static final String NEW_PAGE_NUMBER_COLUMN_NAME = "page_number";
     SharePref sharePref;
 
     @Override
@@ -142,7 +149,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                 Log.d("setupDatabase", "IO Exception" + e.toString());
             }
 
-            restoreRecents(recents);
+            restoreRecent(recents);
             restoreBookmark(bookmarks);
 
             handler.post(() -> {
@@ -161,7 +168,9 @@ public class SplashScreenActivity extends AppCompatActivity {
         new Handler().postDelayed(() -> {
             Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
             SplashScreenActivity.this.startActivity(intent);
-            SplashScreenActivity.this.finish();
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            SplashScreenActivity.this.finishAffinity();
+
         }, 500);
 
     }
@@ -169,14 +178,20 @@ public class SplashScreenActivity extends AppCompatActivity {
     private ArrayList<Recent> backupRecent() {
         ArrayList<Recent> allRecent = new ArrayList<>();
         SQLiteDatabase database = DBOpenHelper.getInstance(this).getReadableDatabase();
-        Cursor cursor = database.rawQuery("SELECT * FROM recent", null);
+        String recentTable = "recent";
+        String bookIdColumnName = getBookIdColumnName(database, recentTable);
+        String pageNumberColumnName = getPageNumberColumnName(database, recentTable);
+        String sql = new SQLBuilder().select(bookIdColumnName, pageNumberColumnName).
+                from(recentTable)
+                .build();
+        Cursor cursor = database.rawQuery(sql, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
-                    String bookid = cursor.getString(cursor.getColumnIndexOrThrow("bookid"));
-                    String bookName = "";
-                    int pageNumber = cursor.getInt(cursor.getColumnIndexOrThrow("pagenumber"));
-                    allRecent.add(new Recent(bookid, bookName, pageNumber));
+                    String bookId = cursor.getString(cursor.getColumnIndexOrThrow(bookIdColumnName));
+                    int pageNumber = cursor.getInt(cursor.getColumnIndexOrThrow(pageNumberColumnName));
+                    String bookName = ""; // do not need to get book name here
+                    allRecent.add(new Recent(bookId, bookName, pageNumber));
                 } while (cursor.moveToNext());
             }
             cursor.close();
@@ -186,26 +201,33 @@ public class SplashScreenActivity extends AppCompatActivity {
         return allRecent;
     }
 
-    private void restoreRecents(ArrayList<Recent> recents) {
+    private void restoreRecent(ArrayList<Recent> recents) {
 
         for (Recent recent : recents) {
-            DBOpenHelper.getInstance(this).addToRecent(recent.getBookid(), recent.getPageNumber());
+            new RecentRepository(DBOpenHelper.getInstance(this)).addToRecent(recent.getBookid(), recent.getPageNumber());
         }
     }
 
     private ArrayList<Bookmark> backupBookmarks() {
         ArrayList<Bookmark> bookmarkList = new ArrayList<>();
         SQLiteDatabase database = DBOpenHelper.getInstance(this).getReadableDatabase();
+        String bookmarkTable = "bookmark";
+        String bookIdColumnName = getBookIdColumnName(database, bookmarkTable);
+        String pageNumberColumnName = getPageNumberColumnName(database, bookmarkTable);
+        String sql = new SQLBuilder().
+                select("note", bookIdColumnName, pageNumberColumnName).
+                from(bookmarkTable).
+                build();
         Cursor cursor = database
-                .rawQuery(" SELECT note, bookid, pagenumber FROM bookmark", null);
+                .rawQuery(sql, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
                     String note = cursor.getString(cursor.getColumnIndexOrThrow("note"));
-                    String bookid = cursor.getString(cursor.getColumnIndexOrThrow("bookid"));
-                    String bookName = "";
-                    int pageNumber = cursor.getInt(cursor.getColumnIndexOrThrow("pagenumber"));
-                    bookmarkList.add(new Bookmark(note, bookid, bookName, pageNumber));
+                    String bookId = cursor.getString(cursor.getColumnIndexOrThrow(bookIdColumnName));
+                    int pageNumber = cursor.getInt(cursor.getColumnIndexOrThrow(pageNumberColumnName));
+                    String bookName = ""; // do not need to get book name here
+                    bookmarkList.add(new Bookmark(note, bookId, bookName, pageNumber));
                 } while (cursor.moveToNext());
             }
             cursor.close();
@@ -217,8 +239,39 @@ public class SplashScreenActivity extends AppCompatActivity {
     private void restoreBookmark(ArrayList<Bookmark> bookmarks) {
 
         for (Bookmark bookmark : bookmarks) {
-            DBOpenHelper.getInstance(this).addToBookmark(bookmark.getNote(), bookmark.getBookID(), bookmark.getPageNumber());
+            new BookmarkRepository(DBOpenHelper.getInstance(this)).addToBookmark(bookmark.getNote(), bookmark.getBookID(), bookmark.getPageNumber());
         }
     }
 
+    public String getBookIdColumnName(SQLiteDatabase db, String tableName) {
+        Cursor cursor = db.rawQuery("PRAGMA table_info(" + tableName + ")", null);
+        String bookId = NEW_BOOK_ID_COLUMN_NAME;
+        if (cursor.moveToFirst()) {
+            do {
+                String currentColumnName = cursor.getString(1); // Index 1 for the "name" column
+                if (currentColumnName.equals(OLD_BOOK_ID_COLUMN_NAME)) {
+                    bookId = OLD_BOOK_ID_COLUMN_NAME;
+                    break;
+                }
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return bookId;
+    }
+
+    private String getPageNumberColumnName(SQLiteDatabase db, String tableName) {
+        Cursor cursor = db.rawQuery("PRAGMA table_info(" + tableName + ")", null);
+        String pageNumber = NEW_PAGE_NUMBER_COLUMN_NAME;
+        if (cursor.moveToFirst()) {
+            do {
+                String currentColumnName = cursor.getString(1); // Index 1 for the "name" column
+                if (currentColumnName.equals(OLD_PAGE_NUMBER_COLUMN_NAME)) {
+                    pageNumber = OLD_PAGE_NUMBER_COLUMN_NAME;
+                    break;
+                }
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return pageNumber;
+    }
 }

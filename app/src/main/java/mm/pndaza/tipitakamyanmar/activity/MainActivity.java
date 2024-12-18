@@ -2,16 +2,13 @@ package mm.pndaza.tipitakamyanmar.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.webkit.WebView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.fragment.BookmarkFragment;
@@ -21,7 +18,6 @@ import mm.pndaza.tipitakamyanmar.fragment.SearchFragment;
 import mm.pndaza.tipitakamyanmar.fragment.SuttaDialogFragment;
 import mm.pndaza.tipitakamyanmar.model.Sutta;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
-import mm.pndaza.tipitakamyanmar.utils.SharePref;
 
 public class MainActivity extends AppCompatActivity implements
         HomeFragment.OnBookItemClickListener,
@@ -29,10 +25,8 @@ public class MainActivity extends AppCompatActivity implements
         BookmarkFragment.OnBookmarkItemClickListener, SearchFragment.OnSearchItemClickListener,
         SuttaDialogFragment.SuttaDialogListener {
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
 
 
         super.onCreate(savedInstanceState);
@@ -46,28 +40,32 @@ public class MainActivity extends AppCompatActivity implements
             openFragment(new HomeFragment());
         }
 
-        BottomNavigationView navView = findViewById(R.id.navigation);
-        navView.setOnNavigationItemSelectedListener(item -> {
-//            Fragment selectedFragment = null;
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    openFragment(new HomeFragment());
-                    break;
-                case R.id.navigation_bookmark:
-                    openFragment(new BookmarkFragment());
-                    break;
-                case R.id.navigation_recent:
-                    openFragment(new RecentFragment());
-                    break;
-                case R.id.navigation_search:
-                    openFragment(new SearchFragment());
-                    break;
-                case R.id.navigation_setting:
-                    Intent intent = new Intent(this, SettingActivity.class);
-                    startActivity(intent);
-                    break;
+        // Create an OnBackPressedCallback
+        /* enabled by default */
+        OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
+            @Override
+            public void handleOnBackPressed() {
+                onClickBackButton();
             }
-            return true;
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
+
+        BottomNavigationView navView = findViewById(R.id.navigation);
+        navView.setOnItemSelectedListener(item -> {
+
+            int itemId = item.getItemId();
+            if (itemId == R.id.navigation_home) {
+                openFragment(new HomeFragment());
+            } else if (itemId == R.id.navigation_bookmark) {
+                openFragment(new BookmarkFragment());
+            } else if (itemId == R.id.navigation_recent) {
+                openFragment(new RecentFragment());
+            } else if (itemId == R.id.navigation_search) {
+                openFragment(new SearchFragment());
+            } else if (itemId == R.id.navigation_setting) {
+                startSettingActivity();
+            }
+            return false;
         });
 
     }
@@ -81,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onBookItemClick(String bookID) {
-        startReadBookActivity(bookID, 1, "");
+        startReadBookActivity(bookID, 0, "");
     }
 
     @Override
@@ -108,21 +106,24 @@ public class MainActivity extends AppCompatActivity implements
         startActivity(intent);
     }
 
-    @Override
-    public void onBackPressed() {
-        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_layout);
-        if ( currentFragment instanceof HomeFragment) {
-            finish();
-        } else {
-            BottomNavigationView navView = findViewById(R.id.navigation);
-            navView.setSelectedItemId(R.id.navigation_home);
-        }
+    private void startSettingActivity() {
+        Intent intent = new Intent(this, SettingActivity.class);
+        startActivity(intent);
     }
-
 
     @Override
     public void onClickedSutta(Sutta sutta) {
         startReadBookActivity(sutta.getBookID(), sutta.getPageNumber(), sutta.getName());
 
+    }
+
+    void onClickBackButton() {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_layout);
+        if (currentFragment instanceof HomeFragment) {
+            finish();
+        } else {
+            BottomNavigationView navView = findViewById(R.id.navigation);
+            navView.setSelectedItemId(R.id.navigation_home);
+        }
     }
 }

@@ -25,6 +25,7 @@ import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.adapter.RecentAdapter;
 import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
 import mm.pndaza.tipitakamyanmar.model.Recent;
+import mm.pndaza.tipitakamyanmar.repository.RecentRepository;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;
 
@@ -39,7 +40,8 @@ public class RecentFragment extends Fragment {
     private RecyclerView recentListView;
     TextView emptyInfoView;
     private ArrayList<Recent> recents;
-    private  OnRecentItemClickListener callbackListener;
+    private OnRecentItemClickListener callbackListener;
+    private RecentRepository recentRepository;
 
     @Nullable
     @Override
@@ -54,6 +56,7 @@ public class RecentFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         context = view.getContext();
+        recentRepository = new RecentRepository(DBOpenHelper.getInstance(context));
         //bind view
         recentListView = view.findViewById(R.id.listView_recent);
         recentListView.setLayoutManager(new LinearLayoutManager(context));
@@ -62,7 +65,6 @@ public class RecentFragment extends Fragment {
 
         emptyInfoView = view.findViewById(R.id.empty_info);
         applyEmptyInfoView(emptyInfoView);
-
     }
 
     @Override
@@ -73,7 +75,7 @@ public class RecentFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.menu_clearAll) {
+        if (item.getItemId() == R.id.menu_clearAll) {
             clearRecent();
         }
         return super.onOptionsItemSelected(item);
@@ -82,16 +84,16 @@ public class RecentFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        try{
+        try {
             callbackListener = (OnRecentItemClickListener) context;
-        } catch (ClassCastException e){
+        } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implemented OnRecentItemCliclListener");
 
         }
     }
 
     private void applyRecentList() {
-        recents = DBOpenHelper.getInstance(getContext()).getAllRecent();
+        recents = recentRepository.getAllRecent();
         final RecentAdapter adapter = new RecentAdapter(recents);
         recentListView.setAdapter(adapter);
         adapter.setOnClickListener(view -> {
@@ -100,15 +102,15 @@ public class RecentFragment extends Fragment {
             String bookid = recents.get(position).getBookid();
             int pageNumber = recents.get(position).getPageNumber();
 
-            Log.d("pageNumber" , ""+pageNumber);
+            Log.d("pageNumber", "" + pageNumber);
 
-                callbackListener.onRecentItemClick(bookid, pageNumber);
+            callbackListener.onRecentItemClick(bookid, pageNumber);
         });
     }
 
     private void clearRecent() {
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context,R.style.AlertDialogTheme);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context, R.style.AlertDialogTheme);
 
         String message = "လက်တလော ကြည့်ရှုထားသည်များကို ဖယ်ရှားမှာလား";
         String comfirm = "ဖယ်ရှားမယ်";
@@ -123,16 +125,16 @@ public class RecentFragment extends Fragment {
                 .setCancelable(true)
                 .setPositiveButton(comfirm,
                         (dialog, id) -> {
-                            DBOpenHelper.getInstance(context).removeAllRecent();
+                            recentRepository.removeAllRecent();
                             applyRecentList();
-                                applyEmptyInfoView(emptyInfoView);
+                            applyEmptyInfoView(emptyInfoView);
                         })
                 .setNegativeButton(cancel, (dialog, id) -> {
                 });
         alertDialog.show();
     }
 
-    private void applyEmptyInfoView(TextView emptyInfoView){
+    private void applyEmptyInfoView(TextView emptyInfoView) {
 
         String info = getString(R.string.recent_empty);
         if (!MDetect.isUnicode()) {

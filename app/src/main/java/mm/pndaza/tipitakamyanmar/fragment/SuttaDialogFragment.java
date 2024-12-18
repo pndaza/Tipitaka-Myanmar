@@ -27,6 +27,7 @@ import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.adapter.SuttaListAdapter;
 import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
 import mm.pndaza.tipitakamyanmar.model.Sutta;
+import mm.pndaza.tipitakamyanmar.repository.SuttaRepository;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;
 
@@ -138,8 +139,9 @@ public class SuttaDialogFragment extends DialogFragment implements SuttaListAdap
                 if (!MDetect.isUnicode()) {
                     filter = Rabbit.zg2uni(filter);
                 }
+                filter = filter.trim();
+                    doFilter(filter);
 
-                doFilter(filter);
                 return false;
             }
         });
@@ -151,7 +153,7 @@ public class SuttaDialogFragment extends DialogFragment implements SuttaListAdap
             adapter.setFilteredWordList(new ArrayList<>());
             adapter.setFilterText("");
         } else {
-            suttas = DBOpenHelper.getInstance(getContext()).getSuttas(filter);
+            suttas = new SuttaRepository(DBOpenHelper.getInstance(getContext())).getSuttas(filter);
             Log.d("TAG", "doFilter: " + suttas.size());
             adapter.setFilteredWordList(suttas);
             adapter.setFilterText(filter);

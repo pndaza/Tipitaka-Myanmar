@@ -23,19 +23,24 @@ import java.util.ArrayList;
 
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.adapter.ParagraphListAdapter;
+import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
+import mm.pndaza.tipitakamyanmar.model.Paragraph;
+import mm.pndaza.tipitakamyanmar.repository.ParagraphRepository;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;
 
-public class ChooseParagraphDialog extends DialogFragment {
+public class GotoPaliAppDialog extends DialogFragment {
 
     private Context context;
-    private ArrayList<Integer> paragraphs;
+    private String bookId;
+    private int pageNumber;
+//    private ArrayList<Integer> paragraphs;
 
     private static final String TAG = "GotoExplanationDialog";
-    private OnChooseParagraphListener listener;
+    private Listener listener;
 
-    public interface OnChooseParagraphListener {
-        void onChooseParagraph(int paragraph);
+    public interface Listener {
+        void onParagraphSelected(Paragraph paragraph);
     }
 
     @Nullable
@@ -45,7 +50,7 @@ public class ChooseParagraphDialog extends DialogFragment {
 
         Window window = getDialog().getWindow();
         WindowManager.LayoutParams params = window.getAttributes();
-        params.y =  +200;
+        params.y = +200;
         params.gravity = Gravity.TOP;
         window.setAttributes(params);
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -63,8 +68,8 @@ public class ChooseParagraphDialog extends DialogFragment {
     public void onAttach(Context context) {
         this.context = context;
         super.onAttach(context);
-        if (context instanceof OnChooseParagraphListener) {
-            listener = (OnChooseParagraphListener) context;
+        if (context instanceof Listener) {
+            listener = (Listener) context;
         } else {
             throw new ClassCastException(context.toString()
                     + " must implement OnChooseParagraphListener.OnChooseParagraph");
@@ -77,10 +82,11 @@ public class ChooseParagraphDialog extends DialogFragment {
 
         Bundle args = getArguments();
 
-        boolean isFromPreviousPage = false;
         if (args != null) {
-            paragraphs = args.getIntegerArrayList("paragraphs");
-            isFromPreviousPage = args.getBoolean("is_from_previous_page");
+            bookId = args.getString("book_id");
+            pageNumber = args.getInt("page_number");
+//            paragraphs = args.getIntegerArrayList("paragraphs");
+//            isFromPreviousPage = args.getBoolean("is_from_previous_page");
         }
 
         TextView tv_title = view.findViewById(R.id.tv_title);
@@ -98,23 +104,36 @@ public class ChooseParagraphDialog extends DialogFragment {
         TextView tv_empty = view.findViewById(R.id.tv_empty);
 
         TextView tv_additional_info = view.findViewById(R.id.tv_additional_info);
-        if(!isFromPreviousPage){
-            tv_additional_info.setVisibility(View.GONE);
-        } else {
-            String info = "ယခုစာမျက်နှာ၌ စာပိုဒ်နံပါတ် မပါသည့်အတွက်\\n ရှေ့စာမျက်နှာမှ စာပိုဒ်များကို ပြထားပါသည်။";
-            tv_additional_info.setText(MDetect.getDeviceEncodedText(info));
-        }
 
 //        tv_empty.setText(MDetect.getDeviceEncodedText(getString(R.string.no_paragraph)));
 //        tv_empty.setVisibility(View.GONE);
         listView.setEmptyView(tv_empty);
+        int currentPage = pageNumber;
+        boolean isResultFromPreviusPage = false;
+        ParagraphRepository paragraphRepository = new ParagraphRepository(DBOpenHelper.getInstance(context));
+        final ArrayList<Paragraph> paragraphs = new ArrayList<>(paragraphRepository.getParagraphs(bookId, pageNumber));
+        if (paragraphs.isEmpty()) {
+            while (paragraphs.isEmpty() && currentPage-- > 1) {
+                paragraphs.addAll(paragraphRepository.getParagraphs(bookId, currentPage));
+            }
+            if(!paragraphs.isEmpty()){
+            isResultFromPreviusPage = true;
+            }
+        }
+        if (isResultFromPreviusPage) {
+            String info = "ယခုစာမျက်နှာ၌ စာပိုဒ်နံပါတ် မပါသည့်အတွက်\\n ရှေ့စာမျက်နှာမှ စာပိုဒ်များကို ပြထားပါသည်။";
+            tv_additional_info.setText(MDetect.getDeviceEncodedText(info));
+        } else {
+            tv_additional_info.setVisibility(View.GONE);
+        }
+
         ParagraphListAdapter adapter = new ParagraphListAdapter(context, paragraphs);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 dismiss();
-                listener.onChooseParagraph(paragraphs.get(position));
+                listener.onParagraphSelected(paragraphs.get(position));
             }
         });
 

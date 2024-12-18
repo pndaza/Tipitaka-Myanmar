@@ -1,13 +1,13 @@
 package mm.pndaza.tipitakamyanmar.fragment;
 
-import android.app.Activity;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -22,12 +22,18 @@ import com.kaopiz.kprogresshud.KProgressHUD;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.adapter.SearchAdapter;
 import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
+import mm.pndaza.tipitakamyanmar.model.Book;
 import mm.pndaza.tipitakamyanmar.model.Page;
-import mm.pndaza.tipitakamyanmar.model.Search;
+import mm.pndaza.tipitakamyanmar.model.SearchQuery;
+import mm.pndaza.tipitakamyanmar.model.SearchResult;
+import mm.pndaza.tipitakamyanmar.repository.BookRepository;
 import mm.pndaza.tipitakamyanmar.utils.BookUtil;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.NumberUtil;
@@ -41,16 +47,19 @@ public class SearchFragment extends Fragment {
     }
 
     private OnSearchItemClickListener callbackListener;
-    private ArrayList<Search> searchResult = new ArrayList<>();
+    private ArrayList<SearchResult> searchResults = new ArrayList<>();
     private SearchAdapter adapter;
-    private static Context context;
+    private Context context;
     private String queryWord;
 
     private KProgressHUD progressDialog;
     private TextView emptyInfoView;
+    private BookRepository bookRepository;
 
+    private RecyclerView recyclerView;
 
-//    private static final String TAG = "SearchFragment";
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     @Nullable
     @Override
@@ -64,132 +73,135 @@ public class SearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         context = view.getContext();
-        emptyInfoView = view.findViewById(R.id.empty_info);
-        RecyclerView recyclerView = view.findViewById(R.id.search_result);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        recyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
-
-        SearchView searchInput = view.findViewById(R.id.search_input);
-        searchInput.setQueryHint(MDetect.getDeviceEncodedText("ရှာလိုသောစကားလုံးကို ရိုက်ထည့်ပါ"));
-        searchInput.setFocusable(true);
-        searchInput.setIconified(false);
-//        searchInput.requestFocusFromTouch();
-        searchInput.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                // todo search
-
-                if (query.length() > 0) {
-                    if (!MDetect.isUnicode()) {
-                        query = Rabbit.zg2uni(query);
-                    }
-                    queryWord = query;
-                    adapter = new SearchAdapter(searchResult, queryWord);
-                    recyclerView.setAdapter(adapter);
-                    adapter.setOnClickListener(view1 -> {
-                        RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) view1.getTag();
-                        int position = viewHolder.getAdapterPosition();
-                        String bookid = searchResult.get(position).getBookID();
-                        int pageNumber = searchResult.get(position).getPageNumber();
-//                Log.d("pageNumber" , ""+pageNumber);
-                        callbackListener.onSearchItemClick(bookid, pageNumber, queryWord);
-                    });
-
-                    progressDialog = KProgressHUD.create(context)
-                            .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                            .setLabel(MDetect.getDeviceEncodedText("ရှာနေဆဲ"))
-                            .setCancellable(false)
-                            .setAnimationSpeed(2)
-                            .setDimAmount(0.5f);
-
-                    new searchIt().execute(query);
-                    searchInput.clearFocus();
-                }
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-                if (searchResult.size() > 0) {
-                    searchResult.clear();
-                    adapter.notifyDataSetChanged();
-                }
-                emptyInfoView.setText("");
-                return false;
-            }
-        });
-
-
+        bookRepository = new BookRepository(DBOpenHelper.getInstance(context));
+        setupViews(view);
+        setupSearchInput(view);
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        try {
+        if (context instanceof OnSearchItemClickListener) {
             callbackListener = (OnSearchItemClickListener) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implemented OnSearchItemClickListener");
-
+        } else {
+            throw new ClassCastException(context + " must implement OnSearchItemClickListener");
         }
     }
 
-    public class searchIt extends AsyncTask<String, Integer, Void> {
+    private void setupViews(View view) {
+        emptyInfoView = view.findViewById(R.id.empty_info);
+        recyclerView = view.findViewById(R.id.search_result);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
+    }
 
-        @Override
-        protected Void doInBackground(String... queries) {
+    private void setupSearchInput(View view) {
+        SearchView searchInput = view.findViewById(R.id.search_input);
+        searchInput.setQueryHint(MDetect.getDeviceEncodedText("ရှာလိုသောစကားလုံးကို ရိုက်ထည့်ပါ"));
+        searchInput.setIconified(false);
+        searchInput.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                if (!query.isEmpty()) {
+                    handleSearch(query);
+                }
+                return false;
+            }
 
-            String query = queries[0];
-            ArrayList<String> bookList = DBOpenHelper.getInstance(context).getAllBook();
-            for (String book : bookList) {
-                String bookName = DBOpenHelper.getInstance(context).getBoookName(book);
-                ArrayList<Page> pages = new ArrayList<>();
-                pages.clear();
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                clearSearchResults();
+                return false;
+            }
+        });
+    }
 
+    private void handleSearch(String query) {
+        if (!MDetect.isUnicode()) {
+            query = Rabbit.zg2uni(query);
+        }
+        queryWord = query;
+        adapter = new SearchAdapter(searchResults, queryWord);
+        recyclerView.setAdapter(adapter);
+        adapter.setOnClickListener(view -> {
+            int position = recyclerView.getChildAdapterPosition(view);
+            if (position != RecyclerView.NO_POSITION) {
+                SearchResult result = searchResults.get(position);
+                callbackListener.onSearchItemClick(result.bookID(), result.pageNumber(), queryWord);
+            }
+        });
+
+        showProgressDialog();
+        executeSearch(query);
+    }
+
+    private void clearSearchResults() {
+        if (!searchResults.isEmpty()) {
+            searchResults.clear();
+            adapter.notifyDataSetChanged();
+        }
+        emptyInfoView.setText("");
+    }
+
+    private void showProgressDialog() {
+        progressDialog = KProgressHUD.create(context)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel(MDetect.getDeviceEncodedText("ရှာနေဆဲ"))
+                .setCancellable(false)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f)
+                .show();
+    }
+
+    private void executeSearch(String query) {
+        executorService.execute(() -> {
+            long startTime = System.currentTimeMillis();
+            ArrayList<Book> bookList = bookRepository.getAllBooks();
+            for (Book book : bookList) {
+                List<Page> pages;
                 try {
-                    pages = BookUtil.read(context, book);
+                    pages = BookUtil.readBook(context, book.getId(), book.getFirstPage());
                 } catch (IOException e) {
                     e.printStackTrace();
+                    continue;
                 }
 
                 for (Page page : pages) {
                     if (page.getPageContent().contains(query)) {
-                        searchResult.addAll(SearchUtil.searchWord(
-                                book, bookName, page.getPageNumber(), page.getPageContent(), query));
+                        List<SearchResult> matches = SearchUtil.findMatches(
+                                new SearchQuery(book.getId(), book.getName(), page.getPageNumber(), page.getPageContent(), query));
+                        if (!matches.isEmpty()) {
+                            searchResults.addAll(matches);
+                            updateProgress();
+                        }
                     }
                 }
-                publishProgress(searchResult.size());
             }
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-            super.onProgressUpdate(progress);
-
-            progressDialog.setLabel(MDetect.getDeviceEncodedText("ရှာနေဆဲ"));
-            int found = progress[0];
-            if (found > 0) {
-                progressDialog.setDetailsLabel(
-                        MDetect.getDeviceEncodedText("တွေ့ရှိမှု(" + NumberUtil.toMyanmar(found) + ")ကြိမ်"));
-            }
-            progressDialog.show();
-            adapter.notifyDataSetChanged();
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
-            progressDialog.dismiss();
-            int found = searchResult.size();
-            if (found > 0) {
-                getActivity().setTitle(MDetect.getDeviceEncodedText(
-                        "တွေ့ရှိမှု - " + NumberUtil.toMyanmar(found) + " ကြိမ်"));
-            } else {
-                emptyInfoView.setText(MDetect.getDeviceEncodedText(
-                        "\"" + queryWord + "\" " + getString(R.string.search_empty)));
-            }
-        }
+            long endTime = System.currentTimeMillis();
+            long duration = endTime - startTime; // Duration in milliseconds
+            Log.d("time", "Execution time: " + duration + " ms");
+            Log.d("time", "Execution time: " + duration / 1000 + " second");
+            onSearchCompleted();
+        });
     }
 
+    private void updateProgress() {
+        handler.post(() -> {
+            int found = searchResults.size();
+            progressDialog.setLabel(MDetect.getDeviceEncodedText("ရှာနေဆဲ (" + NumberUtil.toMyanmar(found) + ")"));
+            adapter.notifyDataSetChanged();
+        });
+    }
+
+    private void onSearchCompleted() {
+        handler.post(() -> {
+            progressDialog.dismiss();
+            int found = searchResults.size();
+            if (found > 0) {
+                getActivity().setTitle(MDetect.getDeviceEncodedText("တွေ့ရှိမှု - " + NumberUtil.toMyanmar(found) + " ကြိမ်"));
+            } else {
+                emptyInfoView.setText(MDetect.getDeviceEncodedText("\"" + queryWord + "\" " + getString(R.string.search_empty)));
+            }
+        });
+    }
 }

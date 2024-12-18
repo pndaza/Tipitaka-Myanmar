@@ -37,15 +37,18 @@ public class GotoDialogFragment extends DialogFragment {
     private static final int PAGE = 0;
     private static final int PARAGRAPH = 1;
 
-    private static final int DAYPOSITIVECOLOR = Color.rgb(233, 30, 99);
-    private static final int NIGHTPOSITIVECOLOR = Color.rgb(255, 88, 35);
-    private static final int NEGATIVECOLOR = Color.rgb(128, 128, 128);
+    private static final int DAY_POSITIVE_COLOR = Color.rgb(233, 30, 99);
+    private static final int NIGHT_POSITIVE_COLOR = Color.rgb(255, 88, 35);
+    private static final int NEGATIVE_COLOR = Color.rgb(128, 128, 128);
 
     private GotoDialogListener listener;
 
     public interface GotoDialogListener {
-        void onSubmitGotoDialog(int input, int type);
+//        void onSubmitGotoDialog(int input, int type);
+        void onNavigateToPage(int pageNumber);
+        void onNavigateToParagraph(int paragraphNumber);
     }
+
 
     @Nullable
     @Override
@@ -162,7 +165,7 @@ public class GotoDialogFragment extends DialogFragment {
                                 if ( nightStatus == AppCompatDelegate.MODE_NIGHT_YES)
                                     color = Color.WHITE;
                                 else
-                                    color = DAYPOSITIVECOLOR;
+                                    color = DAY_POSITIVE_COLOR;
                                 break;
                             }
                         case R.id.radio_btn_para:
@@ -172,7 +175,7 @@ public class GotoDialogFragment extends DialogFragment {
                                 if ( nightStatus == AppCompatDelegate.MODE_NIGHT_YES)
                                     color = Color.WHITE;
                                 else
-                                    color = NIGHTPOSITIVECOLOR;
+                                    color = NIGHT_POSITIVE_COLOR;
                                 break;
                             }
                     }
@@ -206,11 +209,16 @@ public class GotoDialogFragment extends DialogFragment {
 
                 int selected = radioGroup.getCheckedRadioButtonId();
                 int input = Integer.valueOf(editText.getText().toString().trim());
-
-                int type = PAGE;
-                if (selected == R.id.radio_btn_para)
-                    type = PARAGRAPH;
-                listener.onSubmitGotoDialog(input, type);
+                if(selected == R.id.radio_btn_page){
+                    listener.onNavigateToPage(input);
+                } else{
+                    listener.onNavigateToParagraph(input);
+                }
+//
+//                int type = PAGE;
+//                if (selected == R.id.radio_btn_para)
+//                    type = PARAGRAPH;
+//                listener.onSubmitGotoDialog(input, type);
 
                 dismiss();
             }

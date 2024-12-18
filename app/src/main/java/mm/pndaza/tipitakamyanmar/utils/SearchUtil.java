@@ -1,56 +1,58 @@
 package mm.pndaza.tipitakamyanmar.utils;
 
-import java.util.ArrayList;
+import org.jsoup.Jsoup;
 
-import mm.pndaza.tipitakamyanmar.model.Search;
+import java.util.ArrayList;
+import java.util.List;
+
+import mm.pndaza.tipitakamyanmar.model.SearchQuery;
+import mm.pndaza.tipitakamyanmar.model.SearchResult;
+
+
 
 public class SearchUtil {
-    private static String TAG = "SearchUtil";
+    private static final int BRIEF_CONTEXT_LENGTH = 65;
 
-    public static ArrayList<Search> searchWord(String bookid, String bookName, int pageNumber, String content, String query) {
-        ArrayList<Search> results = new ArrayList<>();
-        String simplePageContent = htmlToText(content);
-        int index;
-        int startFrom = 0;
-        int lengthOfQuery = query.length();
+    public static List<SearchResult> findMatches(SearchQuery query) {
+        List<SearchResult> results = new ArrayList<>();
+        String plainText = htmlToPlainText(query.content());
 
-        while ((index = simplePageContent.indexOf(query, startFrom)) != -1) {
-            String brief = getBrief(simplePageContent, query, index);
-            results.add(new Search(bookid, bookName, pageNumber, brief));
-            startFrom = index + lengthOfQuery;
+        int startPosition = 0;
+        int queryLength = query.searchTerm().length();
+
+        while (true) {
+            int matchPosition = plainText.indexOf(query.searchTerm(), startPosition);
+            if (matchPosition == -1) break;
+
+            String contextSnippet = extractContext(plainText, matchPosition, query.searchTerm());
+            results.add(new SearchResult(
+                    query.bookId(),
+                    query.bookName(),
+                    query.pageNumber(),
+                    contextSnippet
+            ));
+
+            startPosition = matchPosition + queryLength;
         }
+
         return results;
     }
 
-    private static String htmlToText(String htmlText) {
-        return htmlText.replaceAll("<[^>]*>", "");
+    private static String htmlToPlainText(String html) {
+        return Jsoup.parse(html).wholeText();
+//        return html.replaceAll("<[^>]*>", "");
     }
 
-    private static String getBrief(String content, String query, int index) {
+    private static String extractContext(String text, int matchPosition, String searchTerm) {
+        int textLength = text.length();
+        int matchEnd = matchPosition + searchTerm.length();
 
-        int length = content.length();
-        int startIndexOfQuery = index;
-        int endIndexOfQuery = startIndexOfQuery + query.length();
-        int briefCharCount = 65;
-        int counter = 1;
+        // Calculate context boundaries
+        int contextStart = Math.max(0, matchPosition - BRIEF_CONTEXT_LENGTH);
+        int contextEnd = Math.min(textLength, matchEnd + BRIEF_CONTEXT_LENGTH);
 
-        while (startIndexOfQuery - counter >= 0 && counter < briefCharCount) {
-            counter++;
-        }
-        int startIndexOfBrief = startIndexOfQuery - (counter - 1);
-
-        counter = 1; //reset counter
-        while (endIndexOfQuery + counter < length && counter < briefCharCount) {
-            counter++;
-        }
-        int endIndexOfBrief = endIndexOfQuery + (counter - 1);
-
-/*        Log.d(TAG, "length - " + length);
-        Log.d(TAG, "startIndexOfQuery - " + startIndexOfQuery);
-        Log.d(TAG, "endIndexOfQuery - " + endIndexOfQuery);
-        Log.d(TAG, "startIndexOfBrief - " + startIndexOfBrief);
-        Log.d(TAG, "endIndexOfBrief - " + endIndexOfBrief);*/
-
-        return content.substring(startIndexOfBrief, endIndexOfBrief);
+        return text.substring(contextStart, contextEnd);
     }
+
 }
+

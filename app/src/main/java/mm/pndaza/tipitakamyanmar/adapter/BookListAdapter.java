@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.model.Book;
+import mm.pndaza.tipitakamyanmar.model.Category;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 
 public class BookListAdapter extends BaseAdapter {
@@ -81,8 +82,9 @@ public class BookListAdapter extends BaseAdapter {
             case HEADER:
                 // Lookup view for data population
                 TextView tvHeader = convertView.findViewById(R.id.tv_list_header);
+                Category category = (Category) list.get(position);
                 // Populate the data into the template view using the data object
-                tvHeader.setText(MDetect.getDeviceEncodedText((String) list.get(position)));
+                tvHeader.setText(MDetect.getDeviceEncodedText(category.name));
                 break;
         }
         // Return the completed view to render on screen

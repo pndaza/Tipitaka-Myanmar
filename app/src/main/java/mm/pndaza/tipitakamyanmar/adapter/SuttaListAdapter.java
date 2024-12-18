@@ -67,10 +67,10 @@ public class SuttaListAdapter extends RecyclerView.Adapter<SuttaListAdapter.View
 Sutta sutta = suttas.get(position);
 String book_and_page = sutta.getBookName() + " - " + NumberUtil.toMyanmar(sutta.getPageNumber());
 if(filterText.isEmpty()){
-        holder.tv_sutta_naame.setText(sutta.getName());
+        holder.tv_sutta_name.setText(sutta.getName());
 
 } else{
-    holder.tv_sutta_naame.setText(setHighlight(sutta.getName()));
+    holder.tv_sutta_name.setText(setHighlight(sutta.getName()));
 }
 
         holder.tv_book_and_page.setText(book_and_page);
@@ -78,13 +78,13 @@ if(filterText.isEmpty()){
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        public TextView tv_sutta_naame;
+        public TextView tv_sutta_name;
         public TextView tv_book_and_page;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            tv_sutta_naame = itemView.findViewById(R.id.tv_sutta_name);
+            tv_sutta_name = itemView.findViewById(R.id.tv_sutta_name);
             tv_book_and_page = itemView.findViewById(R.id.tv_book_and_page);
 
             itemView.setTag(this);

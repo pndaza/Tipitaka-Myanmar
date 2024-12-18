@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "455476092062",
+    "project_id": "tipitakamyanmar-android",
+    "storage_bucket": "tipitakamyanmar-android.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:455476092062:android:04063cd88f053b46d5ef8f",
+        "android_client_info": {
+          "package_name": "mm.pndaza.tipitakamyanmar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGvmvQV6RgzVJTedj9qlvLEaPruq-71gM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

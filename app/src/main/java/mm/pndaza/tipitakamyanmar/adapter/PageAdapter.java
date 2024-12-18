@@ -12,10 +12,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.viewpager.widget.PagerAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.activity.ReadBookActivity;
@@ -27,9 +29,9 @@ import mm.pndaza.tipitakamyanmar.utils.SharePref;
 public class PageAdapter extends PagerAdapter {
 
     private static final String TAG = "PageAdapter";
-    private Context context;
-    private LayoutInflater layoutInflater;
-    private ArrayList<Page> pages;
+    private final Context context;
+    private final LayoutInflater layoutInflater;
+    private final List<Page> pages;
     String textToHighlight;
     int pageToHighlight;
 
@@ -42,7 +44,7 @@ public class PageAdapter extends PagerAdapter {
     public GestureDetectorCompat mDetector;
 
 
-    public PageAdapter(Context context, ArrayList<Page> pages, String textToHighlight, int pageToHighlight) {
+    public PageAdapter(Context context, List<Page> pages, String textToHighlight, int pageToHighlight) {
         this.context = context;
         this.pages = pages;
         this.textToHighlight = textToHighlight;
@@ -67,9 +69,10 @@ public class PageAdapter extends PagerAdapter {
     }
 
     // This method should create the page for the given position passed to it as an argument.
+    @NonNull
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    public Object instantiateItem(ViewGroup container, int position) {
+    public Object instantiateItem(@NonNull ViewGroup container, int position) {
         // Inflate the layout for the page
         View itemView = layoutInflater.inflate(R.layout.page, container, false);
         control_bar = ((ReadBookActivity) context).findViewById(R.id.control_bar);
@@ -193,7 +196,7 @@ public class PageAdapter extends PagerAdapter {
         private static final String DEBUG_TAG = "Gestures";
 
         @Override
-        public boolean onSingleTapUp(MotionEvent event) {
+        public boolean onSingleTapUp(@NonNull MotionEvent event) {
             toggleActionBar();
             return true;
         }
