@@ -18,8 +18,6 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.kaopiz.kprogresshud.KProgressHUD;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +37,7 @@ import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.NumberUtil;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;
 import mm.pndaza.tipitakamyanmar.utils.SearchUtil;
+import mm.pndaza.tipitakamyanmar.view.IOSProgressDialog;
 
 public class SearchFragment extends Fragment {
 
@@ -52,7 +51,7 @@ public class SearchFragment extends Fragment {
     private Context context;
     private String queryWord;
 
-    private KProgressHUD progressDialog;
+    private IOSProgressDialog progressDialog;
     private TextView emptyInfoView;
     private BookRepository bookRepository;
 
@@ -144,13 +143,8 @@ public class SearchFragment extends Fragment {
     }
 
     private void showProgressDialog() {
-        progressDialog = KProgressHUD.create(context)
-                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                .setLabel(MDetect.getDeviceEncodedText("ရှာနေဆဲ"))
-                .setCancellable(false)
-                .setAnimationSpeed(2)
-                .setDimAmount(0.5f)
-                .show();
+        progressDialog = new IOSProgressDialog();
+        progressDialog.showProgressDialog(context, MDetect.getDeviceEncodedText("ရှာနေဆဲ..."));
     }
 
     private void executeSearch(String query) {
@@ -188,14 +182,15 @@ public class SearchFragment extends Fragment {
     private void updateProgress() {
         handler.post(() -> {
             int found = searchResults.size();
-            progressDialog.setLabel(MDetect.getDeviceEncodedText("ရှာနေဆဲ (" + NumberUtil.toMyanmar(found) + ")"));
+            progressDialog.setMessage(MDetect.getDeviceEncodedText("ရှာနေဆဲ (" + NumberUtil.toMyanmar(found) + ")"));
+//            progressDialog.setLabel(MDetect.getDeviceEncodedText("ရှာနေဆဲ (" + NumberUtil.toMyanmar(found) + ")"));
             adapter.notifyDataSetChanged();
         });
     }
 
     private void onSearchCompleted() {
         handler.post(() -> {
-            progressDialog.dismiss();
+            progressDialog.dismissProgressDialog();
             int found = searchResults.size();
             if (found > 0) {
                 getActivity().setTitle(MDetect.getDeviceEncodedText("တွေ့ရှိမှု - " + NumberUtil.toMyanmar(found) + " ကြိမ်"));

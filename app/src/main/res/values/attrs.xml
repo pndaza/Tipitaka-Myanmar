@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="IOSActivityIndicatorView">
+        <attr name="spinnerColor" format="color" />
+        <attr name="spinnerCount" format="integer" />
+        <attr name="spinnerMinAlpha" format="integer" />
+    </declare-styleable>
+</resources>
