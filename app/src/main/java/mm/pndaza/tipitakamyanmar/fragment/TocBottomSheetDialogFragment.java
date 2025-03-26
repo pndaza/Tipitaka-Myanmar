@@ -1,10 +1,12 @@
 package mm.pndaza.tipitakamyanmar.fragment;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +21,8 @@ import java.util.ArrayList;
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.adapter.TocAdapter;
 import mm.pndaza.tipitakamyanmar.model.Toc;
+import mm.pndaza.tipitakamyanmar.utils.FontCache;
+import mm.pndaza.tipitakamyanmar.utils.SharePref;
 
 
 public class TocBottomSheetDialogFragment extends BottomSheetDialogFragment implements TocAdapter.OnItemClickListener{
@@ -59,25 +63,20 @@ public class TocBottomSheetDialogFragment extends BottomSheetDialogFragment impl
         setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme);
         Bundle args = getArguments();
         ArrayList<Toc> tocList = args.getParcelableArrayList("toc_list");
-        TocAdapter tocAdapter = new TocAdapter( tocList, this);
+        Typeface typeface;
+        if(SharePref.getInstance(getContext()).getPrefFontStyle().equals("unicode")) {
+            typeface = FontCache.getUnicodeTypeface(getContext());
+        } else {
+            typeface = FontCache.getZawgyiTypeface(getContext());
+        }
+        TocAdapter tocAdapter = new TocAdapter( tocList, this, typeface);
 
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setAdapter(tocAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-
-/*        final ListView listView = view.findViewById(R.id.lv_toc);
-        listView.setAdapter(tocAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                Toc toc = (Toc)adapterView.getItemAtPosition(i);
-                int pagenum = Integer.valueOf(toc.getPage());
-                listener.onTocItemClick(pagenum);
-                dismiss();
-            }
-        });*/
+        ImageButton closeButton = view.findViewById(R.id.close_button);
+        closeButton.setOnClickListener(v -> dismiss());
     }
 
     @Override

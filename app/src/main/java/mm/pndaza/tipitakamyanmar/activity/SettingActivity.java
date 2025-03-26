@@ -12,6 +12,9 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
@@ -22,6 +25,8 @@ import mm.pndaza.tipitakamyanmar.utils.Rabbit;
 import mm.pndaza.tipitakamyanmar.utils.SharePref;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
+
+import com.google.android.material.appbar.AppBarLayout;
 
 public class SettingActivity extends AppCompatActivity {
 
@@ -38,14 +43,21 @@ public class SettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
 
-        MDetect.init(this);
-        if (!MDetect.isUnicode()) {
+
+        if (!MDetect.getInstance().isUnicode()) {
             changeDisplayText();
         }
+        AppBarLayout appBar = findViewById(R.id.setting_appbar);
+        ViewCompat.setOnApplyWindowInsetsListener(appBar, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(0, systemBars.top, 0, 0);
+            return insets;
+        });
+
         setSupportActionBar(findViewById(R.id.toolbar));
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(MDetect.getDeviceEncodedText(getString(R.string.settingTitle)));
+            getSupportActionBar().setTitle(MDetect.getInstance().getDeviceEncodedText(getString(R.string.settingTitle)));
         }
 
 
@@ -93,10 +105,10 @@ public class SettingActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public void onBackPressed() {
-        finish();
-    }
+//    @Override
+//    public void onBackPressed() {
+//        finish();
+//    }
 
     private void loadSavedSettings() {
 

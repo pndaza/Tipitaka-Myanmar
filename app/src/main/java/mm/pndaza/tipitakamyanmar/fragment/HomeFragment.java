@@ -26,10 +26,12 @@ import java.util.ArrayList;
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.adapter.BookListAdapter;
 import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
+import mm.pndaza.tipitakamyanmar.dialog.InfoDialog;
 import mm.pndaza.tipitakamyanmar.model.Book;
 import mm.pndaza.tipitakamyanmar.model.Category;
 import mm.pndaza.tipitakamyanmar.repository.BookRepository;
 import mm.pndaza.tipitakamyanmar.repository.CategoryRepository;
+import mm.pndaza.tipitakamyanmar.utils.ActivityUtils;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.SharePref;
 
@@ -38,11 +40,6 @@ public class HomeFragment extends Fragment {
     private CategoryRepository categoryRepository;
     private final ArrayList<Object> books = new ArrayList<>();
 
-    public interface OnBookItemClickListener {
-        void onBookItemClick(String bookID);
-    }
-
-    private OnBookItemClickListener callbackListener;
 
     @Nullable
     @Override
@@ -50,7 +47,7 @@ public class HomeFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         FragmentActivity activity = getActivity();
         if (activity != null) {
-            activity.setTitle(MDetect.getDeviceEncodedText(getString(R.string.app_name_mm)));
+            activity.setTitle(MDetect.getInstance().getDeviceEncodedText(getString(R.string.app_name_mm)));
 
         }
         setHasOptionsMenu(true);
@@ -80,15 +77,6 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        try {
-            callbackListener = (OnBookItemClickListener) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implemented OnBookItemClickListener");
-        }
-    }
 
     private void initListView() {
 
@@ -107,7 +95,7 @@ public class HomeFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> listView, View view, int position, long arg3) {
                 if (listView.getItemAtPosition(position) instanceof Book book) {
-                    callbackListener.onBookItemClick(book.getId());
+                    ActivityUtils.startReadBookActivity(getContext(), book.getId());
                 }
             }
         });
@@ -132,18 +120,8 @@ public class HomeFragment extends Fragment {
 
     private void showInfoDialog() {
 
-        Context context = getContext();
-        if (context != null) {
-
-            WebView webView = new WebView(context);
-            // populate the WebView with an HTML string
-            if (SharePref.getInstance(getContext()).getPrefNightModeState()) {
-                webView.loadUrl("file:///android_asset/web/info-night.html");
-            } else {
-                webView.loadUrl("file:///android_asset/web/info.html");
-            }
-            new MaterialAlertDialogBuilder(getContext()).setView(webView).show();
-        }
+        InfoDialog infoDialog = new InfoDialog();
+        infoDialog.show(getParentFragmentManager(), "InfoDialog");
     }
 
 }

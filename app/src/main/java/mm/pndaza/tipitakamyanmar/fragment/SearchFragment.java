@@ -32,20 +32,17 @@ import mm.pndaza.tipitakamyanmar.model.Page;
 import mm.pndaza.tipitakamyanmar.model.SearchQuery;
 import mm.pndaza.tipitakamyanmar.model.SearchResult;
 import mm.pndaza.tipitakamyanmar.repository.BookRepository;
+import mm.pndaza.tipitakamyanmar.utils.ActivityUtils;
 import mm.pndaza.tipitakamyanmar.utils.BookUtil;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.NumberUtil;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;
 import mm.pndaza.tipitakamyanmar.utils.SearchUtil;
 import mm.pndaza.tipitakamyanmar.view.IOSProgressDialog;
+import android.view.inputmethod.InputMethodManager;
 
 public class SearchFragment extends Fragment {
 
-    public interface OnSearchItemClickListener {
-        void onSearchItemClick(String bookid, int pageNumber, String queryWord);
-    }
-
-    private OnSearchItemClickListener callbackListener;
     private ArrayList<SearchResult> searchResults = new ArrayList<>();
     private SearchAdapter adapter;
     private Context context;
@@ -64,7 +61,7 @@ public class SearchFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        getActivity().setTitle(MDetect.getDeviceEncodedText("ရှာဖွေရေး"));
+        getActivity().setTitle(MDetect.getInstance().getDeviceEncodedText("ရှာဖွေရေး"));
         return inflater.inflate(R.layout.fragment_search, container, false);
     }
 
@@ -77,13 +74,19 @@ public class SearchFragment extends Fragment {
         setupSearchInput(view);
     }
 
+
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        if (context instanceof OnSearchItemClickListener) {
-            callbackListener = (OnSearchItemClickListener) context;
-        } else {
-            throw new ClassCastException(context + " must implement OnSearchItemClickListener");
+    public void onResume() {
+        super.onResume();
+        SearchView searchInput = getView().findViewById(R.id.search_input);
+        if (searchInput != null) {
+            searchInput.clearFocus();
+            // Optional: Hide the keyboard as well
+            View view = getActivity().getCurrentFocus();
+            if (view != null) {
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
         }
     }
 
@@ -96,12 +99,13 @@ public class SearchFragment extends Fragment {
 
     private void setupSearchInput(View view) {
         SearchView searchInput = view.findViewById(R.id.search_input);
-        searchInput.setQueryHint(MDetect.getDeviceEncodedText("ရှာလိုသောစကားလုံးကို ရိုက်ထည့်ပါ"));
+        searchInput.setQueryHint(MDetect.getInstance().getDeviceEncodedText("ရှာလိုသောစကားလုံးကို ရိုက်ထည့်ပါ"));
         searchInput.setIconified(false);
         searchInput.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (!query.isEmpty()) {
+                    clearSearchResults();
                     handleSearch(query);
                 }
                 return false;
@@ -116,7 +120,7 @@ public class SearchFragment extends Fragment {
     }
 
     private void handleSearch(String query) {
-        if (!MDetect.isUnicode()) {
+        if (!MDetect.getInstance().isUnicode()) {
             query = Rabbit.zg2uni(query);
         }
         queryWord = query;
@@ -126,7 +130,7 @@ public class SearchFragment extends Fragment {
             int position = recyclerView.getChildAdapterPosition(view);
             if (position != RecyclerView.NO_POSITION) {
                 SearchResult result = searchResults.get(position);
-                callbackListener.onSearchItemClick(result.bookID(), result.pageNumber(), queryWord);
+                ActivityUtils.startReadBookActivity(context, result.bookID(), result.pageNumber(), queryWord);
             }
         });
 
@@ -144,7 +148,7 @@ public class SearchFragment extends Fragment {
 
     private void showProgressDialog() {
         progressDialog = new IOSProgressDialog();
-        progressDialog.showProgressDialog(context, MDetect.getDeviceEncodedText("ရှာနေဆဲ..."));
+        progressDialog.showProgressDialog(context, MDetect.getInstance().getDeviceEncodedText("ရှာနေဆဲ..."));
     }
 
     private void executeSearch(String query) {
@@ -161,9 +165,9 @@ public class SearchFragment extends Fragment {
                 }
 
                 for (Page page : pages) {
-                    if (page.getPageContent().contains(query)) {
+                    if (page.pageContent.contains(query)) {
                         List<SearchResult> matches = SearchUtil.findMatches(
-                                new SearchQuery(book.getId(), book.getName(), page.getPageNumber(), page.getPageContent(), query));
+                                new SearchQuery(book.getId(), book.getName(), page.pageNumber, page.pageContent, query));
                         if (!matches.isEmpty()) {
                             searchResults.addAll(matches);
                             updateProgress();
@@ -182,8 +186,8 @@ public class SearchFragment extends Fragment {
     private void updateProgress() {
         handler.post(() -> {
             int found = searchResults.size();
-            progressDialog.setMessage(MDetect.getDeviceEncodedText("ရှာနေဆဲ (" + NumberUtil.toMyanmar(found) + ")"));
-//            progressDialog.setLabel(MDetect.getDeviceEncodedText("ရှာနေဆဲ (" + NumberUtil.toMyanmar(found) + ")"));
+            progressDialog.setMessage(MDetect.getInstance().getDeviceEncodedText("ရှာနေဆဲ (" + NumberUtil.toMyanmar(found) + ")"));
+//            progressDialog.setLabel(MDetect.getInstance().getDeviceEncodedText("ရှာနေဆဲ (" + NumberUtil.toMyanmar(found) + ")"));
             adapter.notifyDataSetChanged();
         });
     }
@@ -193,9 +197,9 @@ public class SearchFragment extends Fragment {
             progressDialog.dismissProgressDialog();
             int found = searchResults.size();
             if (found > 0) {
-                getActivity().setTitle(MDetect.getDeviceEncodedText("တွေ့ရှိမှု - " + NumberUtil.toMyanmar(found) + " ကြိမ်"));
+                getActivity().setTitle(MDetect.getInstance().getDeviceEncodedText("တွေ့ရှိမှု - " + NumberUtil.toMyanmar(found) + " ကြိမ်"));
             } else {
-                emptyInfoView.setText(MDetect.getDeviceEncodedText("\"" + queryWord + "\" " + getString(R.string.search_empty)));
+                emptyInfoView.setText(MDetect.getInstance().getDeviceEncodedText("\"" + queryWord + "\" " + getString(R.string.search_empty)));
             }
         });
     }

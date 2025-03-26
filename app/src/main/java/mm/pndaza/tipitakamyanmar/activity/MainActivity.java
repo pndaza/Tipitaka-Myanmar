@@ -5,9 +5,13 @@ import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import mm.pndaza.tipitakamyanmar.R;
@@ -15,15 +19,9 @@ import mm.pndaza.tipitakamyanmar.fragment.BookmarkFragment;
 import mm.pndaza.tipitakamyanmar.fragment.HomeFragment;
 import mm.pndaza.tipitakamyanmar.fragment.RecentFragment;
 import mm.pndaza.tipitakamyanmar.fragment.SearchFragment;
-import mm.pndaza.tipitakamyanmar.fragment.SuttaDialogFragment;
-import mm.pndaza.tipitakamyanmar.model.Sutta;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 
-public class MainActivity extends AppCompatActivity implements
-        HomeFragment.OnBookItemClickListener,
-        RecentFragment.OnRecentItemClickListener,
-        BookmarkFragment.OnBookmarkItemClickListener, SearchFragment.OnSearchItemClickListener,
-        SuttaDialogFragment.SuttaDialogListener {
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +32,14 @@ public class MainActivity extends AppCompatActivity implements
 
         setSupportActionBar(findViewById(R.id.toolbar));
         MDetect.init(this);
-        setTitle(MDetect.getDeviceEncodedText(getString(R.string.app_name_mm)));
+        setTitle(MDetect.getInstance().getDeviceEncodedText(getString(R.string.app_name_mm)));
+
+        AppBarLayout appBar = findViewById(R.id.appbar);
+        ViewCompat.setOnApplyWindowInsetsListener(appBar, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(0, systemBars.top, 0, 0);
+            return insets;
+        });
 
         if (savedInstanceState == null) {
             openFragment(new HomeFragment());
@@ -52,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements
 
         BottomNavigationView navView = findViewById(R.id.navigation);
         navView.setOnItemSelectedListener(item -> {
-
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_home) {
                 openFragment(new HomeFragment());
@@ -65,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements
             } else if (itemId == R.id.navigation_setting) {
                 startSettingActivity();
             }
-            return false;
+            return true;
         });
 
     }
@@ -77,44 +81,9 @@ public class MainActivity extends AppCompatActivity implements
         transaction.commit();
     }
 
-    @Override
-    public void onBookItemClick(String bookID) {
-        startReadBookActivity(bookID, 0, "");
-    }
-
-    @Override
-    public void onBookmarkItemClick(String bookID, int pageNumber) {
-        startReadBookActivity(bookID, pageNumber, "");
-    }
-
-    @Override
-    public void onRecentItemClick(String bookID, int pageNumber) {
-        startReadBookActivity(bookID, pageNumber, "");
-    }
-
-    @Override
-    public void onSearchItemClick(String bookId, int pageNumber, String queryWord) {
-        startReadBookActivity(bookId, pageNumber, queryWord);
-    }
-
-    private void startReadBookActivity(String bookID, int pageNumber, String queryWord) {
-
-        Intent intent = new Intent(this, ReadBookActivity.class);
-        intent.putExtra("bookID", bookID);
-        intent.putExtra("currentPage", pageNumber);
-        intent.putExtra("queryWord", queryWord);
-        startActivity(intent);
-    }
-
     private void startSettingActivity() {
         Intent intent = new Intent(this, SettingActivity.class);
         startActivity(intent);
-    }
-
-    @Override
-    public void onClickedSutta(Sutta sutta) {
-        startReadBookActivity(sutta.getBookID(), sutta.getPageNumber(), sutta.getName());
-
     }
 
     void onClickBackButton() {

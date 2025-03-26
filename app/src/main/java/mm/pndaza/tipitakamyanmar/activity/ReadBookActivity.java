@@ -8,12 +8,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
@@ -22,9 +19,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
@@ -38,6 +39,7 @@ import java.util.concurrent.Executors;
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.adapter.PageAdapter;
 import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
+import mm.pndaza.tipitakamyanmar.fragment.BookmarkDialog;
 import mm.pndaza.tipitakamyanmar.fragment.GotoPaliAppDialog;
 import mm.pndaza.tipitakamyanmar.fragment.GotoDialogFragment;
 import mm.pndaza.tipitakamyanmar.fragment.TocBottomSheetDialogFragment;
@@ -113,6 +115,24 @@ public class ReadBookActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_readbook);
 
+
+        AppBarLayout appBar = findViewById(R.id.reader_appbar);
+        ViewCompat.setOnApplyWindowInsetsListener(appBar, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            Insets navigationBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+
+            v.setPadding(0, systemBars.top, 0, 0);
+            // Check if using gesture navigation
+            // In gesture navigation, bottom insets exist but no visible navigation bar
+            boolean isGestureNavigation = navigationBars.bottom > systemBars.bottom;
+
+            // Apply bottom padding only if using gesture navigation
+            if (isGestureNavigation) {
+                v.setPadding(0, systemBars.top, 0, 16);
+            }
+            return insets;
+        });
+
         DBOpenHelper dbOpenHelper = DBOpenHelper.getInstance(this);
         initializeRepositories(dbOpenHelper);
 
@@ -120,7 +140,7 @@ public class ReadBookActivity extends AppCompatActivity
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        MDetect.init(this);
+
 
         handleIntent(getIntent());
         loadBookInfo(savedInstanceState);
@@ -210,7 +230,7 @@ public class ReadBookActivity extends AppCompatActivity
             currentPage = savedInstanceState.getInt("currentPage");
         }
 
-        setTitle(MDetect.getDeviceEncodedText(bookName));
+        setTitle(MDetect.getInstance().getDeviceEncodedText(bookName));
     }
 
     private void initializeViews() {
@@ -281,7 +301,7 @@ public class ReadBookActivity extends AppCompatActivity
             public void onPageSelected(int i) {
                 seekBar.setProgress(firstPage + i);
                 currentPage = i + firstPage;
-                recentRepository.addToRecent(bookID, currentPage);
+                recentRepository.add(bookID, currentPage);
             }
 
             @Override
@@ -419,7 +439,7 @@ public class ReadBookActivity extends AppCompatActivity
                     Log.d(TAG, "current page: " + currentPage);
                     Log.d(TAG, "total pages: " + listOfPage.size());
                     if (!queryWord.isEmpty() && currentPage != 0) {
-                        String pageContent = listOfPage.get(currentIndex()).getPageContent();
+                        String pageContent = listOfPage.get(currentIndex()).pageContent;
                         pageContent = pageContent.replaceAll(
                                 queryWord, "<span class=\"highlight\">" + queryWord + "</span>");
                         pageContent = pageContent.replace(
@@ -489,55 +509,18 @@ public class ReadBookActivity extends AppCompatActivity
     }
 
     private void addToBookmark(int pageNumber) {
-
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
-
-        String message = "မှတ်လိုသောစာသား ရိုက်ထည့်ပါ။";
-        String confirm = "သိမ်းမယ်";
-        String cancel = "မသိမ်းတော့ဘူး";
-        if (!MDetect.isUnicode()) {
-            message = Rabbit.uni2zg(message);
-            confirm = Rabbit.uni2zg(confirm);
-            cancel = Rabbit.uni2zg(cancel);
-        }
-
-        dialogBuilder.setMessage(message);
-        final EditText input = new EditText(this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        input.setLayoutParams(lp);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        dialogBuilder.setMessage(message)
-                .setView(input)
-                .setCancelable(true)
-                .setPositiveButton(confirm,
-                        (dialog, id) -> {
-                            String note = input.getText().toString();
-                            bookmarkRepository.
-                                    addToBookmark(note, bookID, pageNumber);
-
-                            showSnackbar(MDetect.getDeviceEncodedText("သိမ်းမှတ်ပြီးပါပြီ။"));
-
-                        })
-                .setNegativeButton(cancel, (dialog, id) -> {
-                });
-        dialogBuilder.show();
-
-        input.setOnFocusChangeListener((v, hasFocus) -> input.post(() -> {
-            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (inputMethodManager != null) {
-                inputMethodManager.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
-            }
-        }));
-        input.requestFocus();
-
+        BookmarkDialog dialog = BookmarkDialog.newInstance(bookmark -> {
+            bookmarkRepository.
+                    addToBookmark(bookmark, bookID, pageNumber);
+            showSnackbar(MDetect.getInstance().getDeviceEncodedText("သိမ်းမှတ်ပြီးပါပြီ။"));
+        });
+        dialog.show(getSupportFragmentManager(), "add bookmark");
     }
 
     private void copyToClipboard() {
 
-        String pageContent = listOfPage.get(viewPager.getCurrentItem()).getPageContent();
-        if (!MDetect.isUnicode()) {
+        String pageContent = listOfPage.get(viewPager.getCurrentItem()).pageContent;
+        if (!MDetect.getInstance().isUnicode()) {
             pageContent = Rabbit.uni2zg(pageContent);
         }
         String simpleText = pageContent.replaceAll("<[^>]*>", "");
@@ -547,7 +530,7 @@ public class ReadBookActivity extends AppCompatActivity
             clipboard.setPrimaryClip(clip);
         }
 
-        showSnackbar(MDetect.getDeviceEncodedText("ကော်ပီကူးယူပြီးပါပြီ။"));
+        showSnackbar(MDetect.getInstance().getDeviceEncodedText("ကော်ပီကူးယူပြီးပါပြီ။"));
     }
 
 /*
@@ -567,7 +550,7 @@ public class ReadBookActivity extends AppCompatActivity
 
     private void showAlertDialog(String message) {
         new AlertDialog.Builder(this)
-                .setMessage(MDetect.getDeviceEncodedText(message))
+                .setMessage(MDetect.getInstance().getDeviceEncodedText(message))
                 // A null listener allows the button to dismiss the dialog and take no further action.
                 .setPositiveButton("Ok", null)
                 .show();
@@ -575,7 +558,7 @@ public class ReadBookActivity extends AppCompatActivity
 
     private void showNoPaliBook() {
         new AlertDialog.Builder(this)
-                .setMessage(MDetect.getDeviceEncodedText("တိပိဋကပါဠိ ဆော့ဝဲလ် ထည့်သွင်းရန် လိုအပ်ပါသည်။"))
+                .setMessage(MDetect.getInstance().getDeviceEncodedText("တိပိဋကပါဠိ ဆော့ဝဲလ် ထည့်သွင်းရန် လိုအပ်ပါသည်။"))
                 // A null listener allows the button to dismiss the dialog and take no further action.
                 .setPositiveButton("OK", null)
                 .show();

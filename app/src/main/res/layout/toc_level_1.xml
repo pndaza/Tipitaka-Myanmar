@@ -7,5 +7,5 @@
     android:padding="8dp"
     android:maxLines="1"
     android:ellipsize="end"
-    android:textSize="21sp"
+    android:textSize="23sp"
     android:textStyle="bold"/>

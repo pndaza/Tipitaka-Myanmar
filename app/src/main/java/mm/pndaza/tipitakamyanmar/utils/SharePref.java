@@ -46,7 +46,7 @@ public class SharePref {
 
     public String getPrefFontStyle() {
         MDetect.init(context);
-        String fontStyle = MDetect.isUnicode() ? "unicode" : "zawgyi";
+        String fontStyle = MDetect.getInstance().isUnicode() ? "unicode" : "zawgyi";
         return sharedPreferences.getString(PREF_FONT_STYLE, fontStyle);
     }
 

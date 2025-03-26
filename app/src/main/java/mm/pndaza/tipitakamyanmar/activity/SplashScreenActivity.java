@@ -204,7 +204,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     private void restoreRecent(ArrayList<Recent> recents) {
 
         for (Recent recent : recents) {
-            new RecentRepository(DBOpenHelper.getInstance(this)).addToRecent(recent.getBookid(), recent.getPageNumber());
+            new RecentRepository(DBOpenHelper.getInstance(this)).add(recent.bookId, recent.pageNumber);
         }
     }
 
@@ -227,7 +227,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                     String bookId = cursor.getString(cursor.getColumnIndexOrThrow(bookIdColumnName));
                     int pageNumber = cursor.getInt(cursor.getColumnIndexOrThrow(pageNumberColumnName));
                     String bookName = ""; // do not need to get book name here
-                    bookmarkList.add(new Bookmark(note, bookId, bookName, pageNumber));
+                    bookmarkList.add(new Bookmark(0, note, bookId, bookName, pageNumber));
                 } while (cursor.moveToNext());
             }
             cursor.close();
@@ -239,7 +239,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     private void restoreBookmark(ArrayList<Bookmark> bookmarks) {
 
         for (Bookmark bookmark : bookmarks) {
-            new BookmarkRepository(DBOpenHelper.getInstance(this)).addToBookmark(bookmark.getNote(), bookmark.getBookID(), bookmark.getPageNumber());
+            new BookmarkRepository(DBOpenHelper.getInstance(this)).addToBookmark(bookmark.note, bookmark.bookID, bookmark.pageNumber);
         }
     }
 

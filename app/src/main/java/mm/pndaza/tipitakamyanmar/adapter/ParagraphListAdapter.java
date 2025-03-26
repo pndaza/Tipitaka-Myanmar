@@ -49,7 +49,7 @@ public class ParagraphListAdapter extends BaseAdapter {
         }
         TextView textView = convertView.findViewById(android.R.id.text1);
         Paragraph paragraph = paragraphs.get(position);
-        textView.setText(MDetect.getDeviceEncodedText( "စာပိုဒ် အမှတ် - " + NumberUtil.toMyanmar(paragraph.number)));
+        textView.setText(MDetect.getInstance().getDeviceEncodedText( "စာပိုဒ် အမှတ် - " + NumberUtil.toMyanmar(paragraph.number)));
 
         return convertView;
     }

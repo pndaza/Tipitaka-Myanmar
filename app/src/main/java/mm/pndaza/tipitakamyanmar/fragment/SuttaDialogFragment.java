@@ -22,30 +22,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.adapter.SuttaListAdapter;
 import mm.pndaza.tipitakamyanmar.database.DBOpenHelper;
 import mm.pndaza.tipitakamyanmar.model.Sutta;
 import mm.pndaza.tipitakamyanmar.repository.SuttaRepository;
+import mm.pndaza.tipitakamyanmar.utils.ActivityUtils;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;
 
 public class SuttaDialogFragment extends DialogFragment implements SuttaListAdapter.OnItemClickListener {
     //    private ArrayList<Sutta> all_sutta = new ArrayList<>();
-    private ArrayList<Sutta> suttas = new ArrayList<>();
+    private List<Sutta> suttas = new ArrayList<>();
     private SuttaListAdapter adapter;
-    private SuttaDialogListener listener;
 
-    @Override
-    public void onItemClick(Sutta sutta) {
-        listener.onClickedSutta(sutta);
-        dismiss();
-    }
-
-    public interface SuttaDialogListener {
-        void onClickedSutta(Sutta sutta);
-    }
 
     @Nullable
     @Override
@@ -97,16 +89,6 @@ public class SuttaDialogFragment extends DialogFragment implements SuttaListAdap
         window.setAttributes(params);
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        if (context instanceof SuttaDialogListener) {
-            listener = (SuttaDialogListener) context;
-        } else {
-            throw new ClassCastException(context.toString()
-                    + " must implement SuttaDialogFragment.SuttaDialogListener");
-        }
-    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -123,7 +105,7 @@ public class SuttaDialogFragment extends DialogFragment implements SuttaListAdap
         sutta_list.setAdapter(adapter);
 
         SearchView filterInput = view.findViewById(R.id.filter_input);
-        filterInput.setQueryHint(MDetect.getDeviceEncodedText("သုတ်နာမည် ရိုက်ရှာရန်"));
+        filterInput.setQueryHint(MDetect.getInstance().getDeviceEncodedText("သုတ်နာမည် ရိုက်ရှာရန်"));
         filterInput.setFocusable(true);
 //        searchInput.requestFocusFromTouch();
 
@@ -136,11 +118,11 @@ public class SuttaDialogFragment extends DialogFragment implements SuttaListAdap
             @Override
             public boolean onQueryTextChange(String filter) {
 
-                if (!MDetect.isUnicode()) {
+                if (!MDetect.getInstance().isUnicode()) {
                     filter = Rabbit.zg2uni(filter);
                 }
                 filter = filter.trim();
-                    doFilter(filter);
+                doFilter(filter);
 
                 return false;
             }
@@ -160,4 +142,16 @@ public class SuttaDialogFragment extends DialogFragment implements SuttaListAdap
         }
 
     }
+
+    @Override
+    public void onItemClick(Sutta sutta) {
+        ActivityUtils.startReadBookActivity(
+                getContext(),
+                sutta.getBookID(),
+                sutta.getPageNumber(),
+                sutta.getName()
+        );
+        dismiss();
+    }
+
 }

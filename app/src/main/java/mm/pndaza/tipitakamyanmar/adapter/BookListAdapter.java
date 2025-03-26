@@ -1,6 +1,7 @@
 package mm.pndaza.tipitakamyanmar.adapter;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +13,9 @@ import java.util.ArrayList;
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.model.Book;
 import mm.pndaza.tipitakamyanmar.model.Category;
+import mm.pndaza.tipitakamyanmar.utils.FontCache;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
+import mm.pndaza.tipitakamyanmar.utils.SharePref;
 
 public class BookListAdapter extends BaseAdapter {
 
@@ -21,10 +24,16 @@ public class BookListAdapter extends BaseAdapter {
 
     private static final int BOOK_ITEM = 0;
     private static final int HEADER = 1;
+    private Typeface typeface;
 
     public BookListAdapter(Context context, ArrayList<Object> list) {
         this.context = context;
         this.list = list;
+        if(SharePref.getInstance(context).getPrefFontStyle().equals("unicode")) {
+            typeface = FontCache.getUnicodeTypeface(context);
+        } else {
+            typeface = FontCache.getZawgyiTypeface(context);
+        }
     }
 
     @Override
@@ -75,8 +84,10 @@ public class BookListAdapter extends BaseAdapter {
             case BOOK_ITEM:
                 // Lookup view for data population
                 TextView tvName = convertView.findViewById(R.id.tv_list_item);
+                tvName.setTypeface(typeface);
+                tvName.setLineSpacing(0, 1.1f);
                 // Populate the data into the template view using the data object
-                tvName.setText(MDetect.getDeviceEncodedText(((Book) list.get(position)).getName()));
+                tvName.setText(MDetect.getInstance().getDeviceEncodedText(((Book) list.get(position)).getName()));
                 break;
 
             case HEADER:
@@ -84,7 +95,7 @@ public class BookListAdapter extends BaseAdapter {
                 TextView tvHeader = convertView.findViewById(R.id.tv_list_header);
                 Category category = (Category) list.get(position);
                 // Populate the data into the template view using the data object
-                tvHeader.setText(MDetect.getDeviceEncodedText(category.name));
+                tvHeader.setText(MDetect.getInstance().getDeviceEncodedText(category.name));
                 break;
         }
         // Return the completed view to render on screen

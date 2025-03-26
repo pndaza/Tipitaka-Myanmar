@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.model.Sutta;
@@ -21,11 +22,11 @@ import mm.pndaza.tipitakamyanmar.utils.NumberUtil;
 
 public class SuttaListAdapter extends RecyclerView.Adapter<SuttaListAdapter.ViewHolder> {
     private final OnItemClickListener onItemClickListener;
-    private ArrayList<Sutta> suttas;
+    private List<Sutta> suttas;
     private String filterText = "";
     private Context context;
 
-    public SuttaListAdapter(ArrayList<Sutta> suttas, OnItemClickListener onItemClickListener) {
+    public SuttaListAdapter(List<Sutta> suttas, OnItemClickListener onItemClickListener) {
         this.suttas = suttas;
         this.onItemClickListener = onItemClickListener;
 
@@ -43,7 +44,7 @@ public class SuttaListAdapter extends RecyclerView.Adapter<SuttaListAdapter.View
         return suttas.size();
     }
 
-    public void setFilteredWordList(ArrayList<Sutta> filteredSutta){
+    public void setFilteredWordList(List<Sutta> filteredSutta){
         suttas = filteredSutta;
         notifyDataSetChanged();
     }

@@ -15,19 +15,24 @@ import mm.pndaza.tipitakamyanmar.R;
 import mm.pndaza.tipitakamyanmar.model.Toc;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;
+import mm.pndaza.tipitakamyanmar.utils.SharePref;
 
 public class TocAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private ArrayList<Toc> tocList;
+    private final ArrayList<Toc> tocList;
+    private final OnItemClickListener onItemClickListener;
+    private  final Typeface typeface;
+
     private static final int TOC_LEVEL_1 = 1;
     private static final int TOC_LEVEL_2 = 2;
     private static final int TOC_LEVEL_3 = 3;
-    private static final int TOC_LEVEL_4 = 0;
+    private static final int TOC_LEVEL_4 = 4;
 
-    private OnItemClickListener onItemClickListener;
 
-    public TocAdapter(ArrayList<Toc> tocList, OnItemClickListener onItemClickListener) {
+    public TocAdapter(ArrayList<Toc> tocList, OnItemClickListener onItemClickListener, Typeface typeface) {
         this.tocList = tocList;
         this.onItemClickListener = onItemClickListener;
+        this.typeface = typeface;
+
     }
 
     @Override
@@ -35,12 +40,12 @@ public class TocAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         Toc toc = tocList.get(position);
         // we want to bold heading 1
         // 1(heading1) will be used as header
-        switch (toc.getType()){
-            case "1": return TOC_LEVEL_1;
-            case "2": return TOC_LEVEL_2;
-            case "3": return TOC_LEVEL_3;
-            default: return TOC_LEVEL_4;
-        }
+        return switch (toc.getType()) {
+            case "1" -> TOC_LEVEL_1;
+            case "2" -> TOC_LEVEL_2;
+            case "3" -> TOC_LEVEL_3;
+            default -> TOC_LEVEL_4;
+        };
     }
 
     @Override
@@ -76,13 +81,13 @@ public class TocAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof ViewHolderTocLevel1) {
-            ((ViewHolderTocLevel1) holder).tv_name.setText(MDetect.getDeviceEncodedText(tocList.get(position).getName()));
+            ((ViewHolderTocLevel1) holder).tv_name.setText(MDetect.getInstance().getDeviceEncodedText(tocList.get(position).getName()));
         } else if (holder instanceof ViewHolderTocLevel2) {
-            ((ViewHolderTocLevel2) holder).tv_name.setText(MDetect.getDeviceEncodedText(tocList.get(position).getName()));
+            ((ViewHolderTocLevel2) holder).tv_name.setText(MDetect.getInstance().getDeviceEncodedText(tocList.get(position).getName()));
         } else if (holder instanceof ViewHolderTocLevel3) {
-            ((ViewHolderTocLevel3) holder).tv_name.setText(MDetect.getDeviceEncodedText(tocList.get(position).getName()));
+            ((ViewHolderTocLevel3) holder).tv_name.setText(MDetect.getInstance().getDeviceEncodedText(tocList.get(position).getName()));
         } else {
-            ((ViewHolderTocLevel4) holder).tv_name.setText(MDetect.getDeviceEncodedText(tocList.get(position).getName()));
+            ((ViewHolderTocLevel4) holder).tv_name.setText(MDetect.getInstance().getDeviceEncodedText(tocList.get(position).getName()));
         }
     }
 
@@ -92,7 +97,7 @@ public class TocAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public ViewHolderTocLevel1(@NonNull View itemView) {
             super(itemView);
             tv_name = itemView.findViewById(R.id.tv_name);
-            tv_name.setTypeface( Typeface.create(tv_name.getTypeface(), Typeface.BOLD));
+            tv_name.setTypeface( typeface, Typeface.BOLD);
             tv_name.setOnClickListener(this);
         }
 
@@ -108,7 +113,7 @@ public class TocAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public ViewHolderTocLevel2(@NonNull View itemView) {
             super(itemView);
             tv_name = itemView.findViewById(R.id.tv_name);
-            tv_name.setTypeface( tv_name.getTypeface(), Typeface.BOLD);
+            tv_name.setTypeface( typeface, Typeface.BOLD);
             tv_name.setOnClickListener(this);
         }
 
@@ -124,7 +129,7 @@ public class TocAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public ViewHolderTocLevel3(@NonNull View itemView) {
             super(itemView);
             tv_name = itemView.findViewById(R.id.tv_name);
-//            tv_name.setTypeface( null, Typeface.BOLD);
+            tv_name.setTypeface(typeface);
             tv_name.setOnClickListener(this);
         }
 
@@ -140,7 +145,7 @@ public class TocAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public ViewHolderTocLevel4(@NonNull View itemView) {
             super(itemView);
             tv_name = itemView.findViewById(R.id.tv_name);
-//            tv_name.setTypeface( null, Typeface.BOLD);
+            tv_name.setTypeface(typeface);
             tv_name.setOnClickListener(this);
         }
 

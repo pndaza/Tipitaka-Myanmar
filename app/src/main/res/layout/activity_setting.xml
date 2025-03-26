@@ -5,27 +5,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.Toolbar
-        style="@style/Widget.MaterialComponents.Toolbar.Primary"
-        android:id="@+id/toolbar"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/setting_appbar"
         android:layout_width="match_parent"
-        android:layout_height="?android:actionBarSize"
-        android:elevation="@dimen/toolbar_elevation"
-        android:title="@string/app_name"
-        android:layout_alignParentTop="true"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            style="@style/Widget.MaterialComponents.Toolbar.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="?android:actionBarSize"
+            android:layout_alignParentTop="true"
+            android:elevation="@dimen/toolbar_elevation"
+            android:title="@string/app_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </com.google.android.material.appbar.AppBarLayout>
 
     <View
         android:id="@+id/line"
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintStart_toStartOf="parent"
+        android:background="#c0c0c0"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        android:background="#c0c0c0"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/setting_appbar" />
 
 
     <androidx.cardview.widget.CardView
@@ -34,8 +43,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         app:cardUseCompatPadding="true"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/line">
 
         <RadioGroup
@@ -52,7 +61,7 @@
                 android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:text="@string/themeTitle"
-                android:textColor="@color/color_secondary"/>
+                android:textColor="@color/color_secondary" />
 
             <RadioButton
                 android:id="@+id/radio_theme_day"
@@ -76,8 +85,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         app:cardUseCompatPadding="true"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/theme">
 
         <RadioGroup
@@ -94,7 +103,7 @@
                 android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:text="@string/fontStyleTitle"
-                android:textColor="@color/color_secondary"/>
+                android:textColor="@color/color_secondary" />
 
             <RadioButton
                 android:id="@+id/radio_font_zawgyi"
@@ -120,51 +129,53 @@
         android:gravity="center"
         android:text="@string/fontSize"
         android:textColor="@color/color_secondary"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/font_style"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/font_style" />
 
     <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
         android:id="@+id/fontsize_seekbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:background="@android:color/transparent"
         app:dsb_indicatorColor="@color/color_secondary"
         app:dsb_progressColor="@color/color_secondary"
         app:dsb_trackColor="@android:color/white"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_fontSizeTitle"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_fontSizeTitle" />
 
     <TextView
         android:id="@+id/tv_fontSizeSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
         android:gravity="center"
+        android:paddingLeft="16dp"
         android:text="@string/fontSizeSmall"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fontsize_seekbar"/>
+        app:layout_constraintTop_toBottomOf="@+id/fontsize_seekbar" />
+
     <TextView
         android:id="@+id/tv_fontSizeNormal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/fontSizeNormal"
-        app:layout_constraintStart_toEndOf="@+id/tv_fontSizeSmall"
         app:layout_constraintEnd_toStartOf="@+id/tv_fontSizeLarge"
-        app:layout_constraintTop_toBottomOf="@+id/fontsize_seekbar"/>
+        app:layout_constraintStart_toEndOf="@+id/tv_fontSizeSmall"
+        app:layout_constraintTop_toBottomOf="@+id/fontsize_seekbar" />
+
     <TextView
         android:id="@+id/tv_fontSizeLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingRight="16dp"
         android:gravity="center"
+        android:paddingRight="16dp"
         android:text="@string/fontSizeLarge"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fontsize_seekbar"/>
+        app:layout_constraintTop_toBottomOf="@+id/fontsize_seekbar" />
 
     <WebView
         android:id="@+id/webView"
@@ -172,8 +183,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:gravity="center_horizontal"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_fontSizeNormal"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_fontSizeNormal" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

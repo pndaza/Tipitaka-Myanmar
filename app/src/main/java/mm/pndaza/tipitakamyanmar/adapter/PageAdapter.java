@@ -16,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.viewpager.widget.PagerAdapter;
 
+import com.google.android.material.bottomappbar.BottomAppBar;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +38,7 @@ public class PageAdapter extends PagerAdapter {
     int pageToHighlight;
 
     private boolean control_bar_view_state;
-    private LinearLayout control_bar;
+    private BottomAppBar control_bar;
     private static int fontSize;
     private static String style;
     private final String GOTO_ID = "goto_001";
@@ -75,9 +77,9 @@ public class PageAdapter extends PagerAdapter {
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
         // Inflate the layout for the page
         View itemView = layoutInflater.inflate(R.layout.page, container, false);
-        control_bar = ((ReadBookActivity) context).findViewById(R.id.control_bar);
-        String content = pages.get(position).getPageContent();
-        int pageNumber = pages.get(position).getPageNumber();
+        control_bar = ((ReadBookActivity) context).findViewById(R.id.control_bar_container);
+        String content = pages.get(position).pageContent;
+        int pageNumber = pages.get(position).pageNumber;
         if (textToHighlight != null && !textToHighlight.isEmpty() && pageToHighlight == pageNumber) {
             content = setHighlight(content, textToHighlight);
         }

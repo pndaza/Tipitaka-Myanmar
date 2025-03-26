@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     style="@style/AppTheme">
+
     <WebView
         android:id="@+id/info"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-</LinearLayout>
+
+    <ImageButton
+        android:id="@+id/close_button"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="8dp"
+        android:background="@drawable/rounded_button_background"
+        android:src="@drawable/ic_close"
+        android:contentDescription="@string/close"
+        android:scaleType="centerInside"
+        android:padding="8dp"/>
+
+</RelativeLayout>

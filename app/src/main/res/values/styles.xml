@@ -18,8 +18,10 @@
         <item name="colorOnSurface">@color/color_on_surface</item>
 
         <!--Remap legacy AppCompat attributes to MaterialComponent attributes-->
-        <item name="colorPrimaryDark">?colorPrimaryVariant</item>
+        <item name="colorPrimaryDark">@color/color_primary</item>
         <item name="colorAccent">?colorSecondary</item>
+        <item name="android:statusBarColor">@color/color_primary</item>
+
     </style>
 
     <style name="AppTheme.FullScreen" parent="Theme.AppCompat.NoActionBar">

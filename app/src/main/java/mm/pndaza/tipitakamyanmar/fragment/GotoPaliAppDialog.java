@@ -92,7 +92,7 @@ public class GotoPaliAppDialog extends DialogFragment {
         TextView tv_title = view.findViewById(R.id.tv_title);
         tv_title.setText(Rabbit.uni2zg(tv_title.getText().toString()));
         Button btn_close = view.findViewById(R.id.btn_close);
-        btn_close.setText(MDetect.getDeviceEncodedText(btn_close.getText().toString()));
+        btn_close.setText(MDetect.getInstance().getDeviceEncodedText(btn_close.getText().toString()));
         btn_close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -105,7 +105,7 @@ public class GotoPaliAppDialog extends DialogFragment {
 
         TextView tv_additional_info = view.findViewById(R.id.tv_additional_info);
 
-//        tv_empty.setText(MDetect.getDeviceEncodedText(getString(R.string.no_paragraph)));
+//        tv_empty.setText(MDetect.getInstance().getDeviceEncodedText(getString(R.string.no_paragraph)));
 //        tv_empty.setVisibility(View.GONE);
         listView.setEmptyView(tv_empty);
         int currentPage = pageNumber;
@@ -122,7 +122,7 @@ public class GotoPaliAppDialog extends DialogFragment {
         }
         if (isResultFromPreviusPage) {
             String info = "ယခုစာမျက်နှာ၌ စာပိုဒ်နံပါတ် မပါသည့်အတွက်\\n ရှေ့စာမျက်နှာမှ စာပိုဒ်များကို ပြထားပါသည်။";
-            tv_additional_info.setText(MDetect.getDeviceEncodedText(info));
+            tv_additional_info.setText(MDetect.getInstance().getDeviceEncodedText(info));
         } else {
             tv_additional_info.setVisibility(View.GONE);
         }

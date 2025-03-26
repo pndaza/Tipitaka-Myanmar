@@ -101,14 +101,14 @@ public class GotoDialogFragment extends DialogFragment {
         final Button btn_go = view.findViewById(R.id.btn_go);
         final Button btn_cancel = view.findViewById(R.id.btn_cancel);
 
-        if (!MDetect.isUnicode()) {
+        if (!MDetect.getInstance().isUnicode()) {
             tvTitle.setText(Rabbit.uni2zg(tvTitle.getText().toString()));
             btn_go.setText(Rabbit.uni2zg(tvTitle.getText().toString()));
             btn_cancel.setText(Rabbit.uni2zg(tvTitle.getText().toString()));
         }
 
         // set hint for editText
-        editText.setHint(MDetect.getDeviceEncodedText(
+        editText.setHint(MDetect.getInstance().getDeviceEncodedText(
                 String.format("(%d-%d) စာမျက်နှာ", firstPage, lastPage)));
         // show soft keyboard
         editText.requestFocus();
@@ -121,12 +121,12 @@ public class GotoDialogFragment extends DialogFragment {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 if ( i == R.id.radio_btn_page) {
-                    editText.setHint(MDetect.getDeviceEncodedText(
+                    editText.setHint(MDetect.getInstance().getDeviceEncodedText(
                             String.format("(%d-%d) စာမျက်နှာ", firstPage, lastPage)));
                     editText.getText().clear();
                 }
                 else {
-                    editText.setHint(MDetect.getDeviceEncodedText(
+                    editText.setHint(MDetect.getInstance().getDeviceEncodedText(
                             String.format("(%d-%d) စာပိုဒ်", firstParagraph, lastParagraph)));
                     editText.getText().clear();
                 }
