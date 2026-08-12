@@ -11,14 +11,13 @@
         android:id="@+id/reader_appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         android:backgroundTint="@color/color_primary">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
-            style="@style/Widget.MaterialComponents.Toolbar.Primary"
             android:layout_width="match_parent"
             android:layout_height="?android:actionBarSize"
-            android:elevation="@dimen/toolbar_elevation"
             android:title="@string/app_name" />
     </com.google.android.material.appbar.AppBarLayout>
 

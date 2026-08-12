@@ -12,16 +12,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/color_primary"
+        android:fitsSystemWindows="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        style="@style/Widget.MaterialComponents.Toolbar.Primary"
         android:layout_width="match_parent"
         android:layout_height="?android:actionBarSize"
-        android:elevation="@dimen/toolbar_elevation"
         android:title="@string/app_name"/>
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -38,6 +37,7 @@
         android:id="@+id/navigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         app:itemBackground="?attr/colorSurface"
         app:itemIconTint="@drawable/bottom_nav_item_background"
         app:itemTextColor="?attr/colorOnBackground"
