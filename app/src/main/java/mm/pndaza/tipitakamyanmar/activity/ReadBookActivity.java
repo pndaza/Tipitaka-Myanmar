@@ -14,11 +14,11 @@ import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -59,6 +59,7 @@ import mm.pndaza.tipitakamyanmar.utils.MDetect;
 import mm.pndaza.tipitakamyanmar.utils.NumberUtil;
 import mm.pndaza.tipitakamyanmar.utils.Rabbit;
 import mm.pndaza.tipitakamyanmar.utils.SharePref;
+import mm.pndaza.tipitakamyanmar.utils.Theme;
 
 
 public class ReadBookActivity extends AppCompatActivity
@@ -106,15 +107,11 @@ public class ReadBookActivity extends AppCompatActivity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
 
-        if (SharePref.getInstance(this).getPrefNightModeState()) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        }
-
+        Theme.setTheme(this);
+        MDetect.init(this);
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_readbook);
-
 
         AppBarLayout appBar = findViewById(R.id.reader_appbar);
         ViewCompat.setOnApplyWindowInsetsListener(appBar, (v, insets) -> {

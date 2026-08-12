@@ -3,15 +3,12 @@ package mm.pndaza.tipitakamyanmar.activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import mm.pndaza.tipitakamyanmar.R;
@@ -20,33 +17,26 @@ import mm.pndaza.tipitakamyanmar.fragment.HomeFragment;
 import mm.pndaza.tipitakamyanmar.fragment.RecentFragment;
 import mm.pndaza.tipitakamyanmar.fragment.SearchFragment;
 import mm.pndaza.tipitakamyanmar.utils.MDetect;
+import mm.pndaza.tipitakamyanmar.utils.Theme;
 
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
+        Theme.setTheme(this);
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
         setSupportActionBar(findViewById(R.id.toolbar));
         MDetect.init(this);
         setTitle(MDetect.getInstance().getDeviceEncodedText(getString(R.string.app_name_mm)));
 
-        AppBarLayout appBar = findViewById(R.id.appbar);
-        ViewCompat.setOnApplyWindowInsetsListener(appBar, (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(0, systemBars.top, 0, 0);
-            return insets;
-        });
-
         if (savedInstanceState == null) {
             openFragment(new HomeFragment());
         }
 
         // Create an OnBackPressedCallback
-        /* enabled by default */
         OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
             @Override
             public void handleOnBackPressed() {
